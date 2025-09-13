@@ -2,6 +2,13 @@ package edu.psgv.healpointbackend.model;
 
 import jakarta.persistence.*;
 
+
+/**
+ * Represents a role in the system.
+ * Maps to the "Roles" table in the "dbo" schema.
+ *
+ * @author Mahfuzur Rahman
+ */
 @Entity
 @Table(name = "Roles", schema = "dbo")
 public class Role {
@@ -13,7 +20,7 @@ public class Role {
     @Column(name = "RoleDescription", nullable = false, length = 32)
     private String description;
 
-    // getters/setters ...
+    // getters and setters
     public int getId() {
         return id;
     }

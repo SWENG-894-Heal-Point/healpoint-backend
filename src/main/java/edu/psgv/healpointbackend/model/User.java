@@ -3,6 +3,7 @@ package edu.psgv.healpointbackend.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+
 /**
  * Represents a user in the system.
  * Maps to the "Users" table in the "dbo" schema.
@@ -14,8 +15,7 @@ import java.time.LocalDateTime;
 public class User {
 
     // Required by JPA
-    protected User() {
-    }
+    protected User() { }
 
     // Custom constructor
     public User(String email, String password, Role role) {
@@ -59,7 +59,7 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // getters/setters
+    // getters and setters
     public Integer getId() {
         return id;
     }
