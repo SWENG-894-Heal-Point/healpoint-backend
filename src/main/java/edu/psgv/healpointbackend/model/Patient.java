@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import lombok.*;
+
 
 /**
  * Represents a patient in the system.
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
  *
  * @author Mahfuzur Rahman
  */
+@Getter
 @Entity
 @Table(name = "Patients", schema = "dbo")
 public class Patient {
@@ -20,50 +23,61 @@ public class Patient {
     protected Patient() { }
 
     // Custom constructors
-    public Patient(Integer id, String name, String dateOfBirth, String phone, String gender, String address) {
+    @Builder
+    public Patient(Integer id, String firstName, String lastName, LocalDate dateOfBirth, String gender, String phone,
+                   String streetAddress, String city, String state, String zipCode, String insuranceProvider, String insuranceId) {
         this.id = id;
-        this.name = name;
-        this.dateOfBirth = LocalDate.parse(dateOfBirth);
-        this.phone = phone;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
         this.gender = gender;
-        this.address = address;
-    }
-
-    public Patient(Integer id, String name, String dateOfBirth, String phone, String gender, String address, String insuranceId, String insuranceProvider) {
-        this.id = id;
-        this.name = name;
-        this.dateOfBirth = LocalDate.parse(dateOfBirth);
         this.phone = phone;
-        this.gender = gender;
-        this.address = address;
-        this.insuranceId = insuranceId;
+        this.streetAddress = streetAddress;
+        this.city = city;
+        this.state = state;
+        this.zipCode = zipCode;
         this.insuranceProvider = insuranceProvider;
+        this.insuranceId = insuranceId;
     }
 
     @Id
     @Column(name = "PatientID", nullable = false)
     private Integer id;
 
-    @Column(name = "Name", nullable = false, length = 150)
-    private String name;
+    @Column(name = "FirstName", nullable = false, length = 100)
+    private String firstName;
+
+    @Column(name = "LastName", nullable = false, length = 100)
+    private String lastName;
 
     @Column(name = "DateOfBirth", nullable = false)
     private LocalDate dateOfBirth;
 
-    @Column(name = "Phone", nullable = false, length = 20)
-    private String phone;
-
     @Column(name = "Gender", nullable = false, length = 20)
     private String gender;
 
-    @Column(name = "Address", nullable = false, length = 255)
-    private String address;
+    @Column(name = "Phone", nullable = false, length = 20)
+    private String phone;
 
-    @Column(name = "InsuranceID", length = 50)
-    private String insuranceId;
+    @Column(name = "StreetAddress", nullable = false, length = 255)
+    private String streetAddress;
 
+    @Column(name = "City", nullable = false, length = 100)
+    private String city;
+
+    @Column(name = "State", nullable = false, length = 30)
+    private String state;
+
+    @Column(name = "ZipCode", nullable = false, length = 10)
+    private String zipCode;
+
+    @Setter
     @Column(name = "InsuranceProvider", length = 100)
     private String insuranceProvider;
+
+    @Setter
+    @Column(name = "InsuranceID", length = 50)
+    private String insuranceId;
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
@@ -79,78 +93,5 @@ public class Patient {
     @PreUpdate
     void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-
-    // getters and setters
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(String dateOfBirth) {
-        this.dateOfBirth = LocalDate.parse(dateOfBirth);
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getInsuranceId() {
-        return insuranceId;
-    }
-
-    public void setInsuranceId(String insuranceId) {
-        this.insuranceId = insuranceId;
-    }
-
-    public String getInsuranceProvider() {
-        return insuranceProvider;
-    }
-
-    public void setInsuranceProvider(String insuranceProvider) {
-        this.insuranceProvider = insuranceProvider;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }

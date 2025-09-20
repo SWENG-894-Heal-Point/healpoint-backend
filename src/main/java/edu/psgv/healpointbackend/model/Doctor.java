@@ -1,6 +1,9 @@
 package edu.psgv.healpointbackend.model;
 
 import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -10,6 +13,7 @@ import java.time.LocalDateTime;
  *
  * @author Mahfuzur Rahman
  */
+@Getter
 @Entity
 @Table(name = "Doctors", schema = "dbo")
 public class Doctor {
@@ -19,46 +23,58 @@ public class Doctor {
     }
 
     // Custom constructors
-    public Doctor(Integer id, String name, String phone, String gender, String speciality, String licenseNo) {
+    @Builder
+    public Doctor(Integer id, String firstName, String lastName, LocalDate dateOfBirth,
+                  String gender, String phone, String medicalDegree, String specialty,
+                  String npiNumber, Integer yearsOfExperience, String languages) {
         this.id = id;
-        this.name = name;
-        this.phone = phone;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
         this.gender = gender;
-        this.speciality = speciality;
-        this.licenseNo = licenseNo;
-    }
-
-    public Doctor(Integer id, String name, String phone, String gender, String speciality, Integer yearsOfExperience, String licenseNo) {
-        this.id = id;
-        this.name = name;
         this.phone = phone;
-        this.gender = gender;
-        this.speciality = speciality;
+        this.medicalDegree = medicalDegree;
+        this.specialty = specialty;
+        this.npiNumber = npiNumber;
         this.yearsOfExperience = yearsOfExperience;
-        this.licenseNo = licenseNo;
+        this.languages = languages;
     }
 
     @Id
     @Column(name = "DoctorID", nullable = false)
     private Integer id;
 
-    @Column(name = "Name", nullable = false, length = 150)
-    private String name;
+    @Column(name = "FirstName", nullable = false, length = 100)
+    private String firstName;
 
-    @Column(name = "Phone", nullable = false, length = 20)
-    private String phone;
+    @Column(name = "LastName", nullable = false, length = 100)
+    private String lastName;
+
+    @Column(name = "DateOfBirth", nullable = false)
+    private LocalDate dateOfBirth;
 
     @Column(name = "Gender", nullable = false, length = 20)
     private String gender;
 
-    @Column(name = "Speciality", nullable = false, length = 150)
-    private String speciality;
+    @Column(name = "Phone", nullable = false, length = 20)
+    private String phone;
 
+    @Column(name = "MedicalDegree", nullable = false, length = 20)
+    private String medicalDegree;
+
+    @Column(name = "Specialty", nullable = false, length = 150)
+    private String specialty;
+
+    @Column(name = "NIPNumber", nullable = false, length = 50, unique = true)
+    private String npiNumber;
+
+    @Setter
     @Column(name = "YearsOfExperience")
     private Integer yearsOfExperience;
 
-    @Column(name = "LicenseNo", nullable = false, length = 50, unique = true)
-    private String licenseNo;
+    @Setter
+    @Column(name = "Languages", length = 50)
+    private String languages;
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
@@ -74,70 +90,5 @@ public class Doctor {
     @PreUpdate
     void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-
-    // getters and setters
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public String getSpeciality() {
-        return speciality;
-    }
-
-    public void setSpeciality(String speciality) {
-        this.speciality = speciality;
-    }
-
-    public Integer getYearsOfExperience() {
-        return yearsOfExperience;
-    }
-
-    public void setYearsOfExperience(Integer yearsOfExperience) {
-        this.yearsOfExperience = yearsOfExperience;
-    }
-
-    public String getLicenseNo() {
-        return licenseNo;
-    }
-
-    public void setLicenseNo(String licenseNo) {
-        this.licenseNo = licenseNo;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }

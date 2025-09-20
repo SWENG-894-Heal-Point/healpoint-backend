@@ -3,6 +3,8 @@ package edu.psgv.healpointbackend.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import lombok.Getter;
+
 
 /**
  * Represents a user in the system.
@@ -10,6 +12,7 @@ import java.time.LocalDateTime;
  *
  * @author Mahfuzur Rahman
  */
+@Getter
 @Entity
 @Table(name = "Users", schema = "dbo")
 public class User {
@@ -57,55 +60,6 @@ public class User {
     @PreUpdate
     void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-
-    // getters and setters
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public Boolean getActive() {
-        return isActive;
-    }
-
-    public void setActive(Boolean active) {
-        isActive = active;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }
 
