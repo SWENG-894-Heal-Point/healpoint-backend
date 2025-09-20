@@ -3,6 +3,7 @@ package edu.psgv.healpointbackend.service;
 import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
 
 import edu.psgv.healpointbackend.utilities.IoHelper;
+import edu.psgv.healpointbackend.utilities.PasswordUtils;
 import edu.psgv.healpointbackend.dto.RegistrationFormDto;
 import edu.psgv.healpointbackend.repository.*;
 import edu.psgv.healpointbackend.model.*;
@@ -22,6 +23,7 @@ public class RegistrationService {
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
     private final RoleRepository roleRepository;
+    private final EmployeeAccountRepository employeeAccountRepository;
 
     /**
      * Constructs a RegistrationService with required repositories.
@@ -31,11 +33,12 @@ public class RegistrationService {
      * @param doctorRepository  repository for doctor entities
      * @param roleRepository    repository for role entities
      */
-    public RegistrationService(UserRepository userRepository, PatientRepository patientRepository, DoctorRepository doctorRepository, RoleRepository roleRepository) {
+    public RegistrationService(UserRepository userRepository, PatientRepository patientRepository, DoctorRepository doctorRepository, RoleRepository roleRepository, EmployeeAccountRepository employeeAccountRepository) {
         this.userRepository = userRepository;
         this.patientRepository = patientRepository;
         this.doctorRepository = doctorRepository;
         this.roleRepository = roleRepository;
+        this.employeeAccountRepository = employeeAccountRepository;
     }
 
     /**
@@ -68,12 +71,6 @@ public class RegistrationService {
      */
     public ResponseEntity<String> registerUser(RegistrationFormDto request) {
         LOGGER.info("Starting registration for email: {}", request.getEmail());
-        boolean userExists = checkIfUserExists(request.getEmail());
-        if (userExists) {
-            LOGGER.warn("Registration failed — user already exists: {}", request.getEmail());
-            return ResponseEntity.status(409).body("User already exists");
-        }
-
         boolean passwordMatches = request.getPassword().equals(request.getConfirmPassword());
         if (!passwordMatches) {
             LOGGER.warn("Registration failed — passwords do not match for email: {}", request.getEmail());
@@ -81,14 +78,35 @@ public class RegistrationService {
         }
 
         try {
+            boolean userExists = checkIfUserExists(request.getEmail());
+            if (userExists) {
+                LOGGER.warn("Registration failed — user already exists: {}", request.getEmail());
+                return ResponseEntity.status(409).body("User already exists");
+            }
+
             LOGGER.debug("Fetching role: {}", request.getRole());
             Role role = roleRepository.findByDescription(request.getRole())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid role description"));
 
+            EmployeeAccount employeeAccount = null;
+            if (!role.getDescription().equalsIgnoreCase(Roles.PATIENT.toString())) {
+                employeeAccount = employeeAccountRepository.findByEmail(request.getEmail())
+                        .orElseThrow(() -> new IllegalArgumentException("The provided employee email does not exist in the system"));
+
+                LOGGER.debug("Employee account found for email: {}", request.getEmail());
+            }
+
             LOGGER.debug("Creating user entity for email: {}", request.getEmail());
-            User newUser = new User(request.getEmail(), request.getPassword(), role);
+            String hashedPassword = PasswordUtils.hashPassword(request.getPassword());
+            User newUser = new User(request.getEmail(), hashedPassword, role);
             userRepository.save(newUser);
             LOGGER.info("User saved with ID: {}", newUser.getId());
+
+            if (employeeAccount != null) {
+                employeeAccount.setId(newUser.getId());
+                employeeAccountRepository.save(employeeAccount);
+                LOGGER.info("Linked EmployeeAccount ID: {} with User ID: {}", employeeAccount.getId(), newUser.getId());
+            }
 
             if (role.getDescription().equalsIgnoreCase(Roles.PATIENT.toString())) {
                 LOGGER.info("Creating Patient profile for user ID: {}", newUser.getId());

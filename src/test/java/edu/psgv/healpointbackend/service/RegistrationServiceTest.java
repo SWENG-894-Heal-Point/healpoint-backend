@@ -4,12 +4,12 @@ import edu.psgv.healpointbackend.dto.RegistrationFormDto;
 import edu.psgv.healpointbackend.model.*;
 import edu.psgv.healpointbackend.repository.*;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import edu.psgv.healpointbackend.utilities.PasswordUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
@@ -26,7 +26,7 @@ class RegistrationServiceTest {
     @Mock
     private PatientRepository patientRepository;
     @Mock
-    private DoctorRepository doctorRepository;
+    private EmployeeAccountRepository employeeAccountRepository;
 
     @Mock
     private RoleRepository roleRepository;
@@ -64,38 +64,45 @@ class RegistrationServiceTest {
 
     @Test
     void registerUser_successfulRegistration_returns200() {
-        RegistrationFormDto request = new RegistrationFormDto();
-        request.setEmail("newuser@example.com");
-        request.setPassword("password123*");
-        request.setConfirmPassword("password123*");
-        request.setRole("PATIENT");
-        request.setFirstName("John");
-        request.setLastName("Doe");
-        request.setDateOfBirth(LocalDate.parse("1990-01-01"));
-        request.setGender("Male");
-        request.setPhone("1234567890");
-        request.setStreetAddress("123 Main St");
-        request.setCity("Springfield");
-        request.setState("IL");
-        request.setZipCode("62704");
+        try (MockedStatic<PasswordUtils> passwordUtilsMock = mockStatic(PasswordUtils.class)) {
+            RegistrationFormDto request = new RegistrationFormDto();
+            request.setEmail("newuser@example.com");
+            request.setPassword("password123*");
+            request.setConfirmPassword("password123*");
+            request.setRole("PATIENT");
+            request.setFirstName("John");
+            request.setLastName("Doe");
+            request.setDateOfBirth(LocalDate.parse("1990-01-01"));
+            request.setGender("Male");
+            request.setPhone("1234567890");
+            request.setStreetAddress("123 Main St");
+            request.setCity("Springfield");
+            request.setState("IL");
+            request.setZipCode("62704");
 
-        when(userRepository.findByEmail("newuser@example.com")).thenReturn(Optional.empty());
-        Role role = new Role();
-        role.setDescription("PATIENT");
-        when(roleRepository.findByDescription("PATIENT")).thenReturn(Optional.of(role));
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(patientRepository.save(any(Patient.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(userRepository.findByEmail("newuser@example.com")).thenReturn(Optional.empty());
+            Role role = new Role();
+            role.setDescription("PATIENT");
+            when(roleRepository.findByDescription("PATIENT")).thenReturn(Optional.of(role));
+            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(patientRepository.save(any(Patient.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        ResponseEntity<String> response = registrationService.registerUser(request);
+            passwordUtilsMock.when(() -> PasswordUtils.hashPassword("password123*")).thenReturn("hashedPassword");
 
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals("User registered successfully", response.getBody());
+            ResponseEntity<String> response = registrationService.registerUser(request);
+
+            assertEquals(200, response.getStatusCode().value());
+            assertEquals("User registered successfully", response.getBody());
+            passwordUtilsMock.verify(() -> PasswordUtils.hashPassword("password123*"));
+        }
     }
 
     @Test
     void registerUser_userAlreadyExists_returns409() {
         RegistrationFormDto request = mock(RegistrationFormDto.class);
         when(request.getEmail()).thenReturn("existing@example.com");
+        when(request.getPassword()).thenReturn("password123");
+        when(request.getConfirmPassword()).thenReturn("password123");
         when(userRepository.findByEmail("existing@example.com")).thenReturn(Optional.of(mock(User.class)));
 
         ResponseEntity<String> response = registrationService.registerUser(request);
@@ -110,7 +117,6 @@ class RegistrationServiceTest {
         when(request.getEmail()).thenReturn("newuser@example.com");
         when(request.getPassword()).thenReturn("password123");
         when(request.getConfirmPassword()).thenReturn("password456");
-        when(userRepository.findByEmail("newuser@example.com")).thenReturn(Optional.empty());
 
         ResponseEntity<String> response = registrationService.registerUser(request);
 
@@ -132,6 +138,25 @@ class RegistrationServiceTest {
 
         assertEquals(500, response.getStatusCode().value());
         assertTrue(response.getBody().contains("Invalid role description"));
+    }
+
+    @Test
+    void registerUser_employeeEmailNotFound_returns500() {
+        RegistrationFormDto request = mock(RegistrationFormDto.class);
+        when(request.getEmail()).thenReturn("invalidEmployee@email.com");
+        when(request.getPassword()).thenReturn("password123");
+        when(request.getConfirmPassword()).thenReturn("password123");
+        when(request.getRole()).thenReturn("ADMIN");
+        when(userRepository.findByEmail("invalidEmployee@email.com")).thenReturn(Optional.empty());
+        when(employeeAccountRepository.findByEmail("invalidEmployee@email.com")).thenReturn(Optional.empty());
+
+        Role role = new Role();
+        role.setDescription("ADMIN");
+        when(roleRepository.findByDescription("ADMIN")).thenReturn(Optional.of(role));
+
+        ResponseEntity<String> response = registrationService.registerUser(request);
+        assertEquals(500, response.getStatusCode().value());
+        assertTrue(response.getBody().contains("The provided employee email does not exist in the system"));
     }
 
     @Test
