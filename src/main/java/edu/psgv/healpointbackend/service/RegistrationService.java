@@ -53,7 +53,7 @@ public class RegistrationService {
             boolean exists = userRepository.findByEmail(validEmail).isPresent();
             LOGGER.info("User existence check for {}: {}", validEmail, exists);
 
-            return userRepository.findByEmail(validEmail).isPresent();
+            return exists;
         } catch (IllegalArgumentException e) {
             LOGGER.error("Invalid email provided for existence check: {}", email, e);
             throw new IllegalArgumentException(e);
