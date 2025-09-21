@@ -1,9 +1,6 @@
 package edu.psgv.healpointbackend.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +13,8 @@ import java.time.LocalDateTime;
  * @author Mahfuzur Rahman
  */
 @Getter
+@Entity
+@Table(name = "EmployeeAccounts", schema = "dbo")
 public class EmployeeAccount {
     // Required by JPA
     protected EmployeeAccount() {
