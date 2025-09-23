@@ -92,7 +92,7 @@ class RegistrationServiceTest {
             ResponseEntity<String> response = registrationService.registerUser(request);
 
             assertEquals(200, response.getStatusCode().value());
-            assertEquals("User registered successfully", response.getBody());
+            assertEquals("User registered successfully.", response.getBody());
             passwordUtilsMock.verify(() -> PasswordUtils.hashPassword("password123*"));
         }
     }
