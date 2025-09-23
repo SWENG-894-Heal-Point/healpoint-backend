@@ -20,6 +20,12 @@ public class EmployeeAccount {
     protected EmployeeAccount() {
     }
 
+    // Custom constructor
+    public EmployeeAccount(String email, Integer id) {
+        this.email = email;
+        this.id = id;
+    }
+
     @Id
     @Column(name = "Email", nullable = false, length = 256, unique = true)
     private String email;
