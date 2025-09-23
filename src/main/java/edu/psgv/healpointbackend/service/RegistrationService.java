@@ -74,24 +74,24 @@ public class RegistrationService {
         boolean passwordMatches = request.getPassword().equals(request.getConfirmPassword());
         if (!passwordMatches) {
             LOGGER.warn("Registration failed — passwords do not match for email: {}", request.getEmail());
-            return ResponseEntity.status(400).body("Passwords do not match");
+            return ResponseEntity.status(400).body("Passwords do not match.");
         }
 
         try {
             boolean userExists = checkIfUserExists(request.getEmail());
             if (userExists) {
                 LOGGER.warn("Registration failed — user already exists: {}", request.getEmail());
-                return ResponseEntity.status(409).body("User already exists");
+                return ResponseEntity.status(409).body("User already exists.");
             }
 
             LOGGER.debug("Fetching role: {}", request.getRole());
             Role role = roleRepository.findByDescription(request.getRole())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid role description"));
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid role."));
 
             EmployeeAccount employeeAccount = null;
             if (!role.getDescription().equalsIgnoreCase(Roles.PATIENT.toString())) {
                 employeeAccount = employeeAccountRepository.findByEmail(request.getEmail())
-                        .orElseThrow(() -> new IllegalArgumentException("The provided employee email does not exist in the system"));
+                        .orElseThrow(() -> new IllegalArgumentException("The provided employee email does not exist in the system."));
 
                 LOGGER.debug("Employee account found for email: {}", request.getEmail());
             }
@@ -117,10 +117,10 @@ public class RegistrationService {
             }
 
             LOGGER.info("Registration completed successfully for email: {}", request.getEmail());
-            return ResponseEntity.status(200).body("User registered successfully");
+            return ResponseEntity.status(200).body("User registered successfully.");
         } catch (Exception e) {
             LOGGER.error("Unexpected error during registration for {}: {}", request.getEmail(), e.getMessage(), e);
-            return ResponseEntity.status(500).body("An error occurred during registration: " + e.getMessage());
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
