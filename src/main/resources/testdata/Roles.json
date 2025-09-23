@@ -1,0 +1,18 @@
+[
+  {
+    "RoleID": 1,
+    "RoleDescription": "Admin"
+  },
+  {
+    "RoleID": 2,
+    "RoleDescription": "Doctor"
+  },
+  {
+    "RoleID": 3,
+    "RoleDescription": "Support Staff"
+  },
+  {
+    "RoleID": 4,
+    "RoleDescription": "Patient"
+  }
+]
