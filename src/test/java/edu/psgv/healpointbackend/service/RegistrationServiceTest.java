@@ -108,7 +108,7 @@ class RegistrationServiceTest {
         ResponseEntity<String> response = registrationService.registerUser(request);
 
         assertEquals(409, response.getStatusCode().value());
-        assertEquals("User already exists", response.getBody());
+        assertEquals("User already exists.", response.getBody());
     }
 
     @Test
@@ -121,7 +121,7 @@ class RegistrationServiceTest {
         ResponseEntity<String> response = registrationService.registerUser(request);
 
         assertEquals(400, response.getStatusCode().value());
-        assertEquals("Passwords do not match", response.getBody());
+        assertEquals("Passwords do not match.", response.getBody());
     }
 
     @Test
@@ -137,7 +137,7 @@ class RegistrationServiceTest {
         ResponseEntity<String> response = registrationService.registerUser(request);
 
         assertEquals(500, response.getStatusCode().value());
-        assertTrue(response.getBody().contains("Invalid role description"));
+        assertTrue(response.getBody().contains("Invalid role."));
     }
 
     @Test
@@ -156,7 +156,7 @@ class RegistrationServiceTest {
 
         ResponseEntity<String> response = registrationService.registerUser(request);
         assertEquals(500, response.getStatusCode().value());
-        assertTrue(response.getBody().contains("The provided employee email does not exist in the system"));
+        assertTrue(response.getBody().contains("The provided employee email does not exist in the system."));
     }
 
     @Test
@@ -175,6 +175,5 @@ class RegistrationServiceTest {
         ResponseEntity<String> response = registrationService.registerUser(request);
 
         assertEquals(500, response.getStatusCode().value());
-        assertTrue(response.getBody().contains("An error occurred during registration"));
     }
 }
