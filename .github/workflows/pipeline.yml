@@ -28,3 +28,10 @@ jobs:
       - name: Build package
         if: success()
         run: mvn -B package -DskipTests
+
+      # Upload the built JAR as an artifact
+      - name: Upload backend JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: target/*.jar
