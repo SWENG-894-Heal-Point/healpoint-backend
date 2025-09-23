@@ -25,15 +25,14 @@ public class HealpointBackendApplication {
 
     /**
      * Configures Cross-Origin Resource Sharing (CORS) for the application.
-     *
-     * @return the WebMvcConfigurer object with CORS configuration
+     * Override the WebMvcConfigurer object with CORS configuration
      */
     @Configuration
     public class WebCorsConfig implements WebMvcConfigurer {
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/api/**")
-                    .allowedOrigins(CONFIG_READER.get("originUrlDev"), CONFIG_READER.get("originUrlProd"))
+                    .allowedOrigins(CONFIG_READER.get("originUrlDev"), CONFIG_READER.get("originUrlQa"), CONFIG_READER.get("originUrlProd"))
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                     .allowedHeaders("*");
         }
