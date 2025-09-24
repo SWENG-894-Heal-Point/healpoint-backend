@@ -155,7 +155,7 @@ class RegistrationServiceTest {
         when(roleRepository.findByDescriptionIgnoreCase("ADMIN")).thenReturn(Optional.of(role));
 
         ResponseEntity<String> response = registrationService.registerUser(request);
-        assertEquals(500, response.getStatusCode().value());
+        assertEquals(400, response.getStatusCode().value());
         assertTrue(response.getBody().contains("The provided employee email does not exist in the system."));
     }
 
