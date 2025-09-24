@@ -11,6 +11,8 @@ import edu.psgv.healpointbackend.model.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 
 /**
  * Service class for handling user registration and existence checks.
@@ -90,9 +92,13 @@ public class RegistrationService {
 
             EmployeeAccount employeeAccount = null;
             if (!role.getDescription().equalsIgnoreCase(Roles.PATIENT.toString())) {
-                employeeAccount = employeeAccountRepository.findByEmailIgnoreCase(request.getEmail())
-                        .orElseThrow(() -> new IllegalArgumentException("The provided employee email does not exist in the system."));
+                Optional<EmployeeAccount> employeeAccountOpt = employeeAccountRepository.findByEmailIgnoreCase(request.getEmail());
+                if (employeeAccountOpt.isEmpty()) {
+                    LOGGER.warn("Registration failed — employee email does not exist: {}", request.getEmail());
+                    return ResponseEntity.status(400).body("The provided employee email does not exist in the system.");
+                }
 
+                employeeAccount = employeeAccountOpt.get();
                 LOGGER.debug("Employee account found for email: {}", request.getEmail());
             }
 

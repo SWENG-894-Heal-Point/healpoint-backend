@@ -16,5 +16,23 @@
     "UserID": 3,
     "CreatedAt": "2025-09-22 23:39:04.607",
     "UpdatedAt": "2025-09-23 00:20:56.717"
+  },
+  {
+    "Email": "authorized.doctoc1@healpoint.com",
+    "UserID": null,
+    "CreatedAt": "2025-09-22 23:39:04.607",
+    "UpdatedAt": "2025-09-23 00:20:56.717"
+  },
+  {
+    "Email": "authorized.doctoc2@healpoint.com",
+    "UserID": null,
+    "CreatedAt": "2025-09-22 23:39:04.607",
+    "UpdatedAt": "2025-09-23 00:20:56.717"
+  },
+  {
+    "Email": "authorized.doctoc3@healpoint.com",
+    "UserID": null,
+    "CreatedAt": "2025-09-22 23:39:04.607",
+    "UpdatedAt": "2025-09-23 00:20:56.717"
   }
 ]
