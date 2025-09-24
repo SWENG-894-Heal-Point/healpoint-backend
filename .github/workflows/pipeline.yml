@@ -1,0 +1,37 @@
+name: CI - Test & Build
+
+on:
+  push:              # run on all branches
+  pull_request:      # run on all PRs
+  workflow_dispatch: # manual trigger option
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      # Run unit tests
+      - name: Run unit tests
+        run: mvn -B test
+
+      # Build project only if tests succeeded
+      - name: Build package
+        if: success()
+        run: mvn -B package -DskipTests
+
+      # Upload the built JAR as an artifact
+      - name: Upload backend JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: target/*.jar

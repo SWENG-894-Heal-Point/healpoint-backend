@@ -1,0 +1,65 @@
+[
+  {
+    "UserID": 1,
+    "Email": "admin@healpoint.com",
+    "Password": "$2a$10$jEXfu5T/yEeCRYXcUVPio.sVgmI2xCiTRiCSsph2wpnCiLc2GeXcW",
+    "RoleID": 1,
+    "IsActive": true,
+    "CreatedAt": "2025-09-22 19:34:57.563",
+    "UpdatedAt": null
+  },
+  {
+    "UserID": 2,
+    "Email": "brownr@healpoint.com",
+    "Password": "$2a$10$9ktMJIcUFlVwozAV9tNyseIRG.LYE0qxPwONggnp11hsxivoPdjM.",
+    "RoleID": 2,
+    "IsActive": true,
+    "CreatedAt": "2025-09-22 20:07:46.340",
+    "UpdatedAt": null
+  },
+  {
+    "UserID": 3,
+    "Email": "millers@healpoint.com",
+    "Password": "$2a$10$.aJdfpG474yH1OY9EZxWDOYNofD/CZTRMXLyfecXFPyNDGqA31aQq",
+    "RoleID": 2,
+    "IsActive": true,
+    "CreatedAt": "2025-09-22 20:20:57.343",
+    "UpdatedAt": null
+  },
+  {
+    "UserID": 4,
+    "Email": "john.smith@example.com",
+    "Password": "$2a$10$CsFTLzKFeqWC8zXujPIaQeEpZ6CgkHDaky192DKPyT6mRvQRpF03i",
+    "RoleID": 4,
+    "IsActive": true,
+    "CreatedAt": "2025-09-22 20:50:46.413",
+    "UpdatedAt": null
+  },
+  {
+    "UserID": 5,
+    "Email": "jane.doe@example.com",
+    "Password": "$2a$10$WPY7wWj0EiNuscXd3vroUetwZzP.iGo6DbLMY.OaOcsR4SDPxXOHW",
+    "RoleID": 4,
+    "IsActive": true,
+    "CreatedAt": "2025-09-22 20:52:14.857",
+    "UpdatedAt": null
+  },
+  {
+    "UserID": 6,
+    "Email": "mikej@email.com",
+    "Password": "$2a$10$yXd6rlOOY.nTorDxK/408e3kfW1jQbXhKP5vSztg/69RjnXS9T22C",
+    "RoleID": 4,
+    "IsActive": true,
+    "CreatedAt": "2025-09-22 20:54:01.287",
+    "UpdatedAt": null
+  },
+  {
+    "UserID": 7,
+    "Email": "emiDavis@email.com",
+    "Password": "$2a$10$Y2lczKK9KU0m7ml6l1y7UO5t2u3ZTDNfvhG5B/2Rz0juBcihQluVG",
+    "RoleID": 4,
+    "IsActive": true,
+    "CreatedAt": "2025-09-22 20:55:59.710",
+    "UpdatedAt": null
+  }
+]
