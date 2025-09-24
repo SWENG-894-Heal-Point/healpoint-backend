@@ -53,7 +53,7 @@ public class RegistrationService {
             String validEmail = IoHelper.validateString(email);
             LOGGER.debug("Checking if user exists with email: {}", validEmail);
 
-            boolean exists = userRepository.findByEmail(validEmail).isPresent();
+            boolean exists = userRepository.findByEmailIgnoreCase(validEmail).isPresent();
             LOGGER.info("User existence check for {}: {}", validEmail, exists);
 
             return exists;
@@ -85,12 +85,12 @@ public class RegistrationService {
             }
 
             LOGGER.debug("Fetching role: {}", request.getRole());
-            Role role = roleRepository.findByDescription(request.getRole())
+            Role role = roleRepository.findByDescriptionIgnoreCase(request.getRole())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid role."));
 
             EmployeeAccount employeeAccount = null;
             if (!role.getDescription().equalsIgnoreCase(Roles.PATIENT.toString())) {
-                employeeAccount = employeeAccountRepository.findByEmail(request.getEmail())
+                employeeAccount = employeeAccountRepository.findByEmailIgnoreCase(request.getEmail())
                         .orElseThrow(() -> new IllegalArgumentException("The provided employee email does not exist in the system."));
 
                 LOGGER.debug("Employee account found for email: {}", request.getEmail());

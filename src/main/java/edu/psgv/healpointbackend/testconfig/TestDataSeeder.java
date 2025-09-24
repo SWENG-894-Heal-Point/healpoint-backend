@@ -96,6 +96,10 @@ public class TestDataSeeder implements CommandLineRunner {
         loadEmployeeAccounts();
         loadDoctors();
         loadPatients();
+
+        // print all roles and users
+        roleRepository.findAll().forEach(role -> System.out.println(role.getId() + " Role: " + role.getDescription()));
+        userRepository.findAll().forEach(user -> System.out.println(user.getId() + " User: " + user.getEmail() + ", Role: " + user.getRole().getDescription()));
     }
 
     /**

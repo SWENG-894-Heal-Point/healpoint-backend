@@ -18,5 +18,5 @@ public interface EmployeeAccountRepository extends JpaRepository<EmployeeAccount
      * @param email the email of the employee account
      * @return an Optional containing the found EmployeeAccount, or empty if not found
      */
-    Optional<EmployeeAccount> findByEmail(String email);
+    Optional<EmployeeAccount> findByEmailIgnoreCase(String email);
 }

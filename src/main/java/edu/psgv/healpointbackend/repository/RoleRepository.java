@@ -19,5 +19,5 @@ public interface RoleRepository extends JpaRepository<Role, Integer> {
      * @param description the description of the role
      * @return an Optional containing the found role, or empty if not found
      */
-    Optional<Role> findByDescription(String description);
+    Optional<Role> findByDescriptionIgnoreCase(String description);
 }

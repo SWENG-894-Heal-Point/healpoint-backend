@@ -36,22 +36,22 @@ class RegistrationServiceTest {
 
     @Test
     void checkIfUserExists_trueWhenPresent() {
-        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(mock(User.class)));
+        when(userRepository.findByEmailIgnoreCase("test@example.com")).thenReturn(Optional.of(mock(User.class)));
 
         Boolean exists = registrationService.checkIfUserExists("test@example.com");
 
         assertTrue(exists);
-        verify(userRepository).findByEmail("test@example.com");
+        verify(userRepository).findByEmailIgnoreCase("test@example.com");
     }
 
     @Test
     void checkIfUserExists_falseWhenAbsent() {
-        when(userRepository.findByEmail("john.doe@example.com")).thenReturn(Optional.empty());
+        when(userRepository.findByEmailIgnoreCase("john.doe@example.com")).thenReturn(Optional.empty());
 
         Boolean exists = registrationService.checkIfUserExists("john.doe@example.com");
 
         assertFalse(exists);
-        verify(userRepository).findByEmail("john.doe@example.com");
+        verify(userRepository).findByEmailIgnoreCase("john.doe@example.com");
     }
 
     @Test
@@ -80,10 +80,10 @@ class RegistrationServiceTest {
             request.setState("IL");
             request.setZipCode("62704");
 
-            when(userRepository.findByEmail("newuser@example.com")).thenReturn(Optional.empty());
+            when(userRepository.findByEmailIgnoreCase("newuser@example.com")).thenReturn(Optional.empty());
             Role role = new Role();
             role.setDescription("PATIENT");
-            when(roleRepository.findByDescription("PATIENT")).thenReturn(Optional.of(role));
+            when(roleRepository.findByDescriptionIgnoreCase("PATIENT")).thenReturn(Optional.of(role));
             when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
             when(patientRepository.save(any(Patient.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -103,7 +103,7 @@ class RegistrationServiceTest {
         when(request.getEmail()).thenReturn("existing@example.com");
         when(request.getPassword()).thenReturn("password123");
         when(request.getConfirmPassword()).thenReturn("password123");
-        when(userRepository.findByEmail("existing@example.com")).thenReturn(Optional.of(mock(User.class)));
+        when(userRepository.findByEmailIgnoreCase("existing@example.com")).thenReturn(Optional.of(mock(User.class)));
 
         ResponseEntity<String> response = registrationService.registerUser(request);
 
@@ -131,8 +131,8 @@ class RegistrationServiceTest {
         when(request.getPassword()).thenReturn("password123");
         when(request.getConfirmPassword()).thenReturn("password123");
         when(request.getRole()).thenReturn("INVALID_ROLE");
-        when(userRepository.findByEmail("newuser@example.com")).thenReturn(Optional.empty());
-        when(roleRepository.findByDescription("INVALID_ROLE")).thenReturn(Optional.empty());
+        when(userRepository.findByEmailIgnoreCase("newuser@example.com")).thenReturn(Optional.empty());
+        when(roleRepository.findByDescriptionIgnoreCase("INVALID_ROLE")).thenReturn(Optional.empty());
 
         ResponseEntity<String> response = registrationService.registerUser(request);
 
@@ -147,12 +147,12 @@ class RegistrationServiceTest {
         when(request.getPassword()).thenReturn("password123");
         when(request.getConfirmPassword()).thenReturn("password123");
         when(request.getRole()).thenReturn("ADMIN");
-        when(userRepository.findByEmail("invalidEmployee@email.com")).thenReturn(Optional.empty());
-        when(employeeAccountRepository.findByEmail("invalidEmployee@email.com")).thenReturn(Optional.empty());
+        when(userRepository.findByEmailIgnoreCase("invalidEmployee@email.com")).thenReturn(Optional.empty());
+        when(employeeAccountRepository.findByEmailIgnoreCase("invalidEmployee@email.com")).thenReturn(Optional.empty());
 
         Role role = new Role();
         role.setDescription("ADMIN");
-        when(roleRepository.findByDescription("ADMIN")).thenReturn(Optional.of(role));
+        when(roleRepository.findByDescriptionIgnoreCase("ADMIN")).thenReturn(Optional.of(role));
 
         ResponseEntity<String> response = registrationService.registerUser(request);
         assertEquals(500, response.getStatusCode().value());
@@ -166,10 +166,10 @@ class RegistrationServiceTest {
         when(request.getPassword()).thenReturn("password123");
         when(request.getConfirmPassword()).thenReturn("password123");
         when(request.getRole()).thenReturn("PATIENT");
-        when(userRepository.findByEmail("newuser@example.com")).thenReturn(Optional.empty());
+        when(userRepository.findByEmailIgnoreCase("newuser@example.com")).thenReturn(Optional.empty());
         Role role = new Role();
         role.setDescription("PATIENT");
-        when(roleRepository.findByDescription("PATIENT")).thenReturn(Optional.of(role));
+        when(roleRepository.findByDescriptionIgnoreCase("PATIENT")).thenReturn(Optional.of(role));
         when(userRepository.save(any(User.class))).thenThrow(new RuntimeException("DB error"));
 
         ResponseEntity<String> response = registrationService.registerUser(request);
