@@ -97,7 +97,7 @@ public class AuthenticationService {
             LOGGER.info("Authentication successful for email {}. Token issued.", email);
             return ResponseEntity.ok(token);
         } catch (Exception e) {
-            LOGGER.error("Unexpected error during a for {}: {}", authenticationFormDto.getEmail(), e.getMessage(), e);
+            LOGGER.error("Unexpected error during authentication for {}: {}", authenticationFormDto.getEmail(), e.getMessage(), e);
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }

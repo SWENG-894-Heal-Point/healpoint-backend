@@ -91,7 +91,7 @@ public class RegistrationService {
                     .orElseThrow(() -> new IllegalArgumentException("Invalid role."));
 
             EmployeeAccount employeeAccount = null;
-            if (!role.getDescription().equalsIgnoreCase(Roles.PATIENT.toString())) {
+            if (!role.getDescription().equalsIgnoreCase(Roles.PATIENT)) {
                 Optional<EmployeeAccount> employeeAccountOpt = employeeAccountRepository.findByEmailIgnoreCase(request.getEmail());
                 if (employeeAccountOpt.isEmpty()) {
                     LOGGER.warn("Registration failed — employee email does not exist: {}", request.getEmail());
@@ -114,10 +114,10 @@ public class RegistrationService {
                 LOGGER.info("Linked EmployeeAccount ID: {} with User ID: {}", employeeAccount.getId(), newUser.getId());
             }
 
-            if (role.getDescription().equalsIgnoreCase(Roles.PATIENT.toString())) {
+            if (role.getDescription().equalsIgnoreCase(Roles.PATIENT)) {
                 LOGGER.info("Creating Patient profile for user ID: {}", newUser.getId());
                 patientRepository.save(createPatient(newUser, request));
-            } else if (role.getDescription().equalsIgnoreCase(Roles.DOCTOR.toString())) {
+            } else if (role.getDescription().equalsIgnoreCase(Roles.DOCTOR)) {
                 LOGGER.info("Creating Doctor profile for user ID: {}", newUser.getId());
                 doctorRepository.save(createDoctor(newUser, request));
             }

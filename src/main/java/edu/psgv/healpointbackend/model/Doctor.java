@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
  * @author Mahfuzur Rahman
  */
 @Getter
+@Setter
 @Entity
 @Table(name = "Doctors", schema = "dbo")
 public class Doctor {

@@ -1,7 +1,6 @@
 package edu.psgv.healpointbackend.dto;
 
 import edu.psgv.healpointbackend.common.validation.PasswordPolicy;
-import edu.psgv.healpointbackend.common.validation.ValidRoleFields;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +13,6 @@ import java.time.LocalDate;
  * <p>
  * Contains all fields required for registering a user, including both patient and doctor-specific fields.
  * Validation annotations ensure that the data meets requirements for each field.
- * The {@link ValidRoleFields} annotation enforces that required fields are present based on the user's role.
  * </p>
  *
  * <ul>
@@ -23,13 +21,11 @@ import java.time.LocalDate;
  * </ul>
  *
  * @author Mahfuzur Rahman
- * @see ValidRoleFields
  * @see PasswordPolicy
  */
 @Getter
 @Setter
-@ValidRoleFields
-public class RegistrationFormDto {
+public class RegistrationFormDto extends RoleBasedDto {
     @Email
     String email;
 
@@ -56,19 +52,4 @@ public class RegistrationFormDto {
 
     @Pattern(regexp = "^[0-9]{10}$", message = "Phone number is invalid. Please enter a 10-digit phone number without spaces or special characters.")
     String phone;
-
-    // Patient-specific fields
-    String streetAddress;
-    String city;
-    String state;
-    String zipCode;
-    String insuranceProvider;
-    String insuranceId;
-
-    // Doctor-specific fields
-    String medicalDegree;
-    String specialty;
-    String npiNumber;
-    Integer experience;
-    String languages;
 }

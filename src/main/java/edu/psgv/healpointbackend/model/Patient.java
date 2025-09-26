@@ -15,6 +15,7 @@ import lombok.*;
  * @author Mahfuzur Rahman
  */
 @Getter
+@Setter
 @Entity
 @Table(name = "Patients", schema = "dbo")
 public class Patient {
