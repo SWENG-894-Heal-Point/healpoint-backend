@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 import lombok.Getter;
+import lombok.Setter;
 
 
 /**
@@ -43,6 +44,11 @@ public class User {
     @JoinColumn(name = "RoleID", nullable = false, foreignKey = @ForeignKey(name = "FK_Users_Roles"))
     private Role role;
 
+    @Setter
+    @Transient
+    private String token;
+
+    @Setter
     @Column(name = "IsActive", nullable = false)
     private Boolean isActive = true;
 

@@ -123,7 +123,7 @@ public class RegistrationService {
             }
 
             LOGGER.info("Registration completed successfully for email: {}", request.getEmail());
-            return ResponseEntity.status(200).body("User registered successfully.");
+            return ResponseEntity.ok("User registered successfully.");
         } catch (Exception e) {
             LOGGER.error("Unexpected error during registration for {}: {}", request.getEmail(), e.getMessage(), e);
             return ResponseEntity.status(500).body(e.getMessage());
