@@ -10,6 +10,7 @@ package edu.psgv.healpointbackend.model;
  */
 public class Roles {
     public static final String ADMIN = "ADMIN";
+    public static final String SUPPORT_STAFF = "SUPPORT_STAFF";
     public static final String DOCTOR = "DOCTOR";
     public static final String PATIENT = "PATIENT";
 }

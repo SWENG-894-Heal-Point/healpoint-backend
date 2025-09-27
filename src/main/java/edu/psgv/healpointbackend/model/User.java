@@ -34,9 +34,11 @@ public class User {
     @Column(name = "UserID")
     private Integer id;
 
+    @Setter
     @Column(name = "Email", nullable = false, length = 256, unique = true)
     private String email;
 
+    @Setter
     @Column(name = "Password", nullable = false, length = 256)
     private String password;
 

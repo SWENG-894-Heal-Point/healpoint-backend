@@ -9,7 +9,6 @@ import edu.psgv.healpointbackend.repository.UserRepository;
 
 import edu.psgv.healpointbackend.utilities.JwtUtil;
 import edu.psgv.healpointbackend.utilities.PasswordUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -32,23 +31,11 @@ public class AuthenticationService {
      * Constructs the AuthenticationService with the required UserRepository.
      * Initializes JwtUtil and Datastore instances.
      *
-     * @param userRepository the user repository to use
-     */
-    @Autowired
-    public AuthenticationService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-        this.jwtUtil = new JwtUtil();
-        this.datastore = Datastore.getInstance();
-    }
-
-    /**
-     * Protected constructor for testing or advanced dependency injection.
-     *
      * @param userRepository the user repository
      * @param jwtUtil        the JWT utility
      * @param datastore      the datastore instance
      */
-    protected AuthenticationService(UserRepository userRepository, JwtUtil jwtUtil, Datastore datastore) {
+    public AuthenticationService(UserRepository userRepository, JwtUtil jwtUtil, Datastore datastore) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.datastore = datastore;

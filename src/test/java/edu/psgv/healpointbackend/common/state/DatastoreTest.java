@@ -21,7 +21,7 @@ class DatastoreTest {
         existingUser = new User("existing.user@email.com", "Test@123", role);
         existingUser.setToken("JwtToken123");
 
-        datastore = Datastore.getInstance();
+        datastore = new Datastore();
         datastore.clearOnlineUsers();
         datastore.addUser(existingUser);
     }

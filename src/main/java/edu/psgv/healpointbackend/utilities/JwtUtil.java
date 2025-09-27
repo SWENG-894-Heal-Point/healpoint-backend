@@ -4,6 +4,7 @@ import static edu.psgv.healpointbackend.HealpointBackendApplication.CONFIG_READE
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
@@ -15,6 +16,7 @@ import java.util.Date;
  *
  * @author Mahfuzur Rahman
  */
+@Component
 public class JwtUtil {
     private String secret = CONFIG_READER.get("jwtSecretKey");
     private long validityInMs = 3600_000;
