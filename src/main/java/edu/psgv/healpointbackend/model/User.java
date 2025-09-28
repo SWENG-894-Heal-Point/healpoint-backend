@@ -1,10 +1,10 @@
 package edu.psgv.healpointbackend.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 
 /**

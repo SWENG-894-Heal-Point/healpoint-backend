@@ -1,17 +1,16 @@
 package edu.psgv.healpointbackend.service;
 
-import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
-
+import edu.psgv.healpointbackend.dto.RegistrationFormDto;
+import edu.psgv.healpointbackend.model.*;
+import edu.psgv.healpointbackend.repository.*;
 import edu.psgv.healpointbackend.utilities.IoHelper;
 import edu.psgv.healpointbackend.utilities.PasswordUtils;
-import edu.psgv.healpointbackend.dto.RegistrationFormDto;
-import edu.psgv.healpointbackend.repository.*;
-import edu.psgv.healpointbackend.model.*;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
+import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
 
 
 /**

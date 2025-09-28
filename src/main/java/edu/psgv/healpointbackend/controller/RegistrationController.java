@@ -1,13 +1,12 @@
 package edu.psgv.healpointbackend.controller;
 
-import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
-
 import edu.psgv.healpointbackend.dto.RegistrationFormDto;
 import edu.psgv.healpointbackend.service.RegistrationService;
-
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
 
 
 /**

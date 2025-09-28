@@ -1,13 +1,13 @@
 package edu.psgv.healpointbackend.utilities;
 
-import static edu.psgv.healpointbackend.HealpointBackendApplication.CONFIG_READER;
-
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+
+import static edu.psgv.healpointbackend.HealpointBackendApplication.CONFIG_READER;
 
 
 /**
@@ -18,8 +18,6 @@ import java.util.Date;
  */
 @Component
 public class JwtUtil {
-    private String secret = CONFIG_READER.get("jwtSecretKey");
-    private long validityInMs = 3600_000;
 
     /**
      * Generates a JWT for the specified email.
@@ -28,14 +26,17 @@ public class JwtUtil {
      * @return a signed JWT as a String
      */
     public String generateToken(String email) {
+        String secret = CONFIG_READER.get("jwtSecretKey");
+        long validityInMs = 3600_000;
+
         Key key = Keys.hmacShaKeyFor(secret.getBytes());
         Date now = new Date();
         Date expiry = new Date(now.getTime() + validityInMs);
 
         return Jwts.builder()
-                .subject(email)
-                .issuedAt(now)
-                .expiration(expiry)
+                .setSubject(email)
+                .setIssuedAt(now)
+                .setExpiration(expiry)
                 .signWith(key)
                 .compact();
     }

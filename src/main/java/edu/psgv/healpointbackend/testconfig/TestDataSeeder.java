@@ -1,16 +1,18 @@
 package edu.psgv.healpointbackend.testconfig;
 
-import edu.psgv.healpointbackend.model.*;
-import edu.psgv.healpointbackend.repository.*;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.psgv.healpointbackend.model.*;
+import edu.psgv.healpointbackend.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.time.LocalDate;
+
+import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
 
 
 /**
@@ -18,7 +20,7 @@ import java.time.LocalDate;
  * <p>
  * This class implements {@link CommandLineRunner} to execute data seeding logic
  * after the application context is loaded. It checks if each repository is empty
- * before seeding data from corresponding JSON files located in the "testdata" directory.
+ * before seeding data from corresponding JSON files located in the "test-data" directory.
  * </p>
  *
  * <p>
@@ -33,7 +35,7 @@ import java.time.LocalDate;
  * </p>
  *
  * <p>
- * JSON files should be placed in "testdata/" and named as follows:
+ * JSON files should be placed in "test-data/" and named as follows:
  * <ul>
  *   <li>Roles.json</li>
  *   <li>Users.json</li>
@@ -87,7 +89,7 @@ public class TestDataSeeder implements CommandLineRunner {
      * </p>
      *
      * @param args command line arguments (not used)
-     * @throws Exception if an error occurs during file reading or data processing
+     * @throws IOException if an error occurs during file reading or JSON parsing
      */
     @Override
     public void run(String... args) throws Exception {
@@ -98,8 +100,8 @@ public class TestDataSeeder implements CommandLineRunner {
         loadPatients();
 
         // print all roles and users
-        roleRepository.findAll().forEach(role -> System.out.println(role.getId() + " Role: " + role.getDescription()));
-        userRepository.findAll().forEach(user -> System.out.println(user.getId() + " User: " + user.getEmail() + ", Role: " + user.getRole().getDescription()));
+        roleRepository.findAll().forEach(role -> LOGGER.info("{} Role: {}", role.getId(), role.getDescription()));
+        userRepository.findAll().forEach(user -> LOGGER.info("{} User: {}, Role: {}", user.getId(), user.getEmail(), user.getRole().getDescription()));
     }
 
     /**
@@ -109,10 +111,10 @@ public class TestDataSeeder implements CommandLineRunner {
      * repository. It assumes the JSON structure contains a "RoleDescription" field.
      * </p>
      *
-     * @throws Exception if an error occurs during file reading or JSON parsing
+     * @throws IOException if an error occurs during file reading or JSON parsing
      */
-    private void loadRoles() throws Exception {
-        JsonNode root = objectMapper.readTree(new ClassPathResource("testdata/Roles.json").getInputStream());
+    private void loadRoles() throws IOException {
+        JsonNode root = objectMapper.readTree(new ClassPathResource("test-data/Roles.json").getInputStream());
         for (JsonNode node : root) {
             Role role = new Role();
             role.setDescription(node.get("RoleDescription").asText());
@@ -128,10 +130,10 @@ public class TestDataSeeder implements CommandLineRunner {
      * "Email", "Password", and "RoleID" fields.
      * </p>
      *
-     * @throws Exception if an error occurs during file reading or JSON parsing
+     * @throws IOException if an error occurs during file reading or JSON parsing
      */
-    private void loadUsers() throws Exception {
-        JsonNode root = objectMapper.readTree(new ClassPathResource("testdata/Users.json").getInputStream());
+    private void loadUsers() throws IOException {
+        JsonNode root = objectMapper.readTree(new ClassPathResource("test-data/Users.json").getInputStream());
         for (JsonNode node : root) {
             Role role = roleRepository.findById(node.get("RoleID").asInt())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid role."));
@@ -147,10 +149,10 @@ public class TestDataSeeder implements CommandLineRunner {
      * EmployeeAccount repository. It assumes the JSON structure contains "Email" and "UserID" fields.
      * </p>
      *
-     * @throws Exception if an error occurs during file reading or JSON parsing
+     * @throws IOException if an error occurs during file reading or JSON parsing
      */
-    private void loadEmployeeAccounts() throws Exception {
-        JsonNode root = objectMapper.readTree(new ClassPathResource("testdata/EmployeeAccounts.json").getInputStream());
+    private void loadEmployeeAccounts() throws IOException {
+        JsonNode root = objectMapper.readTree(new ClassPathResource("test-data/EmployeeAccounts.json").getInputStream());
         for (JsonNode node : root) {
             EmployeeAccount employeeAccount = new EmployeeAccount(node.get("Email").asText(), node.get("UserID").asInt());
             employeeAccountRepository.save(employeeAccount);
@@ -166,10 +168,10 @@ public class TestDataSeeder implements CommandLineRunner {
      * "Specialty", "NIPNumber", "YearsOfExperience", and "Languages".
      * </p>
      *
-     * @throws Exception if an error occurs during file reading or JSON parsing
+     * @throws IOException if an error occurs during file reading or JSON parsing
      */
-    private void loadDoctors() throws Exception {
-        JsonNode root = objectMapper.readTree(new ClassPathResource("testdata/Doctors.json").getInputStream());
+    private void loadDoctors() throws IOException {
+        JsonNode root = objectMapper.readTree(new ClassPathResource("test-data/Doctors.json").getInputStream());
         for (JsonNode node : root) {
             Doctor doctor = Doctor.builder()
                     .id(node.get("DoctorID").asInt())
@@ -197,10 +199,10 @@ public class TestDataSeeder implements CommandLineRunner {
      * "City", "State", "ZipCode", "InsuranceID", and "InsuranceProvider".
      * </p>
      *
-     * @throws Exception if an error occurs during file reading or JSON parsing
+     * @throws IOException if an error occurs during file reading or JSON parsing
      */
-    private void loadPatients() throws Exception {
-        JsonNode root = objectMapper.readTree(new ClassPathResource("testdata/Patients.json").getInputStream());
+    private void loadPatients() throws IOException {
+        JsonNode root = objectMapper.readTree(new ClassPathResource("test-data/Patients.json").getInputStream());
         for (JsonNode node : root) {
             Patient patient = Patient.builder()
                     .id(node.get("PatientID").asInt())

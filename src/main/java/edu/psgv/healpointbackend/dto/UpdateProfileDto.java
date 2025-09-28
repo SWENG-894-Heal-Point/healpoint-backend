@@ -1,6 +1,8 @@
 package edu.psgv.healpointbackend.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +19,6 @@ public class UpdateProfileDto extends RoleBasedDto {
     @NotBlank
     String gender;
 
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number is invalid. Please enter a 10-digit phone number without spaces or special characters.")
+    @Pattern(regexp = "^\\d{10}$", message = "Phone number is invalid. Please enter a 10-digit phone number without spaces or special characters.")
     String phone;
 }

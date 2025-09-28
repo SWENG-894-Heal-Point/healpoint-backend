@@ -1,10 +1,12 @@
 package edu.psgv.healpointbackend.dto;
 
 import edu.psgv.healpointbackend.common.validation.PasswordPolicy;
-
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 
@@ -50,6 +52,6 @@ public class RegistrationFormDto extends RoleBasedDto {
     @NotBlank
     String gender;
 
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number is invalid. Please enter a 10-digit phone number without spaces or special characters.")
+    @Pattern(regexp = "^\\d{10}$", message = "Phone number is invalid. Please enter a 10-digit phone number without spaces or special characters.")
     String phone;
 }

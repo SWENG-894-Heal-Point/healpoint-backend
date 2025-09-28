@@ -3,7 +3,6 @@ package edu.psgv.healpointbackend.common.validation;
 import edu.psgv.healpointbackend.dto.RegistrationFormDto;
 import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.utilities.IoHelper;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

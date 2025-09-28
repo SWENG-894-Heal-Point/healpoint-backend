@@ -13,4 +13,10 @@ public class Roles {
     public static final String SUPPORT_STAFF = "SUPPORT_STAFF";
     public static final String DOCTOR = "DOCTOR";
     public static final String PATIENT = "PATIENT";
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private Roles() {
+    }
 }

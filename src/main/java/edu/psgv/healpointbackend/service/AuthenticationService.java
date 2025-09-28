@@ -1,18 +1,17 @@
 package edu.psgv.healpointbackend.service;
 
-import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
-
 import edu.psgv.healpointbackend.common.state.Datastore;
 import edu.psgv.healpointbackend.dto.AuthenticationFormDto;
 import edu.psgv.healpointbackend.model.User;
 import edu.psgv.healpointbackend.repository.UserRepository;
-
 import edu.psgv.healpointbackend.utilities.JwtUtil;
 import edu.psgv.healpointbackend.utilities.PasswordUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
+import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
 
 
 /**
@@ -60,7 +59,7 @@ public class AuthenticationService {
             }
 
             User user = userOpt.get();
-            if (!user.getIsActive()) {
+            if (Boolean.FALSE.equals(user.getIsActive())) {
                 LOGGER.warn("Authentication failed: inactive account for email {}", email);
                 return ResponseEntity.status(403).body("This account is inactive. Please contact support.");
             }

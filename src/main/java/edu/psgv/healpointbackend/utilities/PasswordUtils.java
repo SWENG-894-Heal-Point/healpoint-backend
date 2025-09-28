@@ -13,6 +13,12 @@ public class PasswordUtils {
     private static final PasswordEncoder encoder = new BCryptPasswordEncoder();
 
     /**
+     * Private constructor to prevent instantiation.
+     */
+    private PasswordUtils() {
+    }
+
+    /**
      * Hashes a plain text password using BCrypt.
      *
      * @param password the plain text password to hash
