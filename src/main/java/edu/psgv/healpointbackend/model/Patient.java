@@ -1,11 +1,12 @@
 package edu.psgv.healpointbackend.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import lombok.*;
 
 
 /**
@@ -15,6 +16,7 @@ import lombok.*;
  * @author Mahfuzur Rahman
  */
 @Getter
+@Setter
 @Entity
 @Table(name = "Patients", schema = "dbo")
 public class Patient {
@@ -59,7 +61,7 @@ public class Patient {
     @Column(name = "Phone", nullable = false, length = 20)
     private String phone;
 
-    @Column(name = "StreetAddress", nullable = false, length = 255)
+    @Column(name = "StreetAddress", nullable = false)
     private String streetAddress;
 
     @Column(name = "City", nullable = false, length = 100)

@@ -1,7 +1,9 @@
 package edu.psgv.healpointbackend.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
  * @author Mahfuzur Rahman
  */
 @Getter
+@Setter
 @Entity
 @Table(name = "Doctors", schema = "dbo")
 public class Doctor {

@@ -1,6 +1,8 @@
 package edu.psgv.healpointbackend.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 
 /**
@@ -17,6 +19,8 @@ public class Role {
     @Column(name = "RoleID")
     private Integer id;
 
+    @Getter
+    @Setter
     @Column(name = "RoleDescription", nullable = false, length = 32)
     private String description;
 
@@ -27,13 +31,5 @@ public class Role {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 }

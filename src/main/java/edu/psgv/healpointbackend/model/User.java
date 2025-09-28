@@ -1,10 +1,10 @@
 package edu.psgv.healpointbackend.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 
 /**
@@ -34,9 +34,11 @@ public class User {
     @Column(name = "UserID")
     private Integer id;
 
+    @Setter
     @Column(name = "Email", nullable = false, length = 256, unique = true)
     private String email;
 
+    @Setter
     @Column(name = "Password", nullable = false, length = 256)
     private String password;
 

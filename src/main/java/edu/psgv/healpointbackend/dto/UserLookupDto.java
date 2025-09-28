@@ -1,16 +1,12 @@
 package edu.psgv.healpointbackend.dto;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
-public class AuthenticationFormDto {
+public class UserLookupDto extends TokenDto {
+    @Getter
+    @Setter
     @Email
     String email;
-
-    @NotBlank
-    String password;
 }

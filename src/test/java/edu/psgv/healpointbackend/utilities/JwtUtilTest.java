@@ -1,35 +1,28 @@
 package edu.psgv.healpointbackend.utilities;
 
+import static edu.psgv.healpointbackend.HealpointBackendApplication.CONFIG_READER;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.lang.reflect.Field;
 import java.security.Key;
 import java.util.Date;
 
 
 class JwtUtilTest {
     private JwtUtil jwtUtil;
-    private static final String TEST_SECRET = "testSuperStrongSecretKey1234567890";
-    private static final long TEST_VALIDITY = 3600_000L;
+    private static String testSecret;
+    private static long testValidity;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         jwtUtil = new JwtUtil();
-
-        Field secretField = JwtUtil.class.getDeclaredField("secret");
-        secretField.setAccessible(true);
-        secretField.set(jwtUtil, TEST_SECRET);
-
-        Field validityField = JwtUtil.class.getDeclaredField("validityInMs");
-        validityField.setAccessible(true);
-        validityField.setLong(jwtUtil, TEST_VALIDITY);
+        testSecret = CONFIG_READER.get("jwtSecretKey");
+        testValidity = 3600_000L;
     }
 
     @Test
@@ -43,8 +36,8 @@ class JwtUtilTest {
         Date after = new Date();
 
         // parse back
-        Key key = Keys.hmacShaKeyFor(TEST_SECRET.getBytes());
-        Jws<Claims> parsed = Jwts.parser().setSigningKey(key).build().parseClaimsJws(token);
+        Key key = Keys.hmacShaKeyFor(testSecret.getBytes());
+        Jws<Claims> parsed = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
 
         Claims body = parsed.getBody();
         Date issuedAt = body.getIssuedAt();
@@ -56,7 +49,7 @@ class JwtUtilTest {
         assertTrue((issuedAt.compareTo(before) >= 0 && issuedAt.compareTo(after) <= 0),"issuedAt should be stamped between before and after generation");
 
         long delta = expiration.getTime() - issuedAt.getTime();
-        assertEquals(TEST_VALIDITY, delta, 100, "expiration minus issuedAt should be within 100ms of validityInMs");
+        assertEquals(testValidity, delta, 100, "expiration minus issuedAt should be within 100ms of validityInMs");
     }
 
     @Test

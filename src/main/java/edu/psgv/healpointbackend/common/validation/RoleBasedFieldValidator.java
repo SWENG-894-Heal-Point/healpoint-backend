@@ -3,7 +3,6 @@ package edu.psgv.healpointbackend.common.validation;
 import edu.psgv.healpointbackend.dto.RegistrationFormDto;
 import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.utilities.IoHelper;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -40,7 +39,7 @@ public class RoleBasedFieldValidator implements ConstraintValidator<ValidRoleFie
 
         boolean isValid = true;
 
-        if (dto.getRole().equalsIgnoreCase(Roles.PATIENT.toString())) {
+        if (dto.getRole().equalsIgnoreCase(Roles.PATIENT)) {
             isValid &= !IoHelper.isNullOrEmpty(dto.getStreetAddress());
             isValid &= !IoHelper.isNullOrEmpty(dto.getCity());
             isValid &= !IoHelper.isNullOrEmpty(dto.getState());
@@ -51,7 +50,7 @@ public class RoleBasedFieldValidator implements ConstraintValidator<ValidRoleFie
                 context.buildConstraintViolationWithTemplate("All patient fields must be filled in.")
                         .addConstraintViolation();
             }
-        } else if (dto.getRole().equalsIgnoreCase(Roles.DOCTOR.toString())) {
+        } else if (dto.getRole().equalsIgnoreCase(Roles.DOCTOR)) {
             isValid &= !IoHelper.isNullOrEmpty(dto.getMedicalDegree());
             isValid &= !IoHelper.isNullOrEmpty(dto.getSpecialty());
             isValid &= !IoHelper.isNullOrEmpty(dto.getNpiNumber());
