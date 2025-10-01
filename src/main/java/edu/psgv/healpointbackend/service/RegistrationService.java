@@ -187,7 +187,7 @@ public class RegistrationService {
         }
         if (request.getExperience() != null && request.getExperience() >= 0) {
             LOGGER.debug("Adding years of experience for Doctor ID: {}", user.getId());
-            newDoctor.setYearsOfExperience(request.getExperience());
+            newDoctor.setExperience(request.getExperience());
         }
 
         return newDoctor;

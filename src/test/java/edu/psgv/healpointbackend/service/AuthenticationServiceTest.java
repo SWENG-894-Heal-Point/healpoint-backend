@@ -2,6 +2,7 @@ package edu.psgv.healpointbackend.service;
 
 import edu.psgv.healpointbackend.common.state.Datastore;
 import edu.psgv.healpointbackend.dto.AuthenticationFormDto;
+import edu.psgv.healpointbackend.model.Role;
 import edu.psgv.healpointbackend.model.User;
 import edu.psgv.healpointbackend.repository.UserRepository;
 import edu.psgv.healpointbackend.utilities.JwtUtil;
@@ -35,6 +36,7 @@ class AuthenticationServiceTest {
     private final String RAW_PW = "secret";
     private final String HASHED_PW = "hashed-secret";
     private final String TOKEN = "jwt-token-123";
+    private Role role;
 
     @BeforeEach
     void setUp() {
@@ -43,6 +45,9 @@ class AuthenticationServiceTest {
 
         // inject BOTH fakeDatastore and jwtUtil
         authService = new AuthenticationService(userRepository, jwtUtil, fakeDatastore);
+
+        role = new Role();
+        role.setDescription("patient");
     }
 
     @AfterEach
@@ -128,13 +133,13 @@ class AuthenticationServiceTest {
 
         assertEquals(200, resp.getStatusCode().value());
         assertEquals(TOKEN, resp.getBody());
-        verify(jwtUtil, never()).generateToken(anyString());
+        verify(jwtUtil, never()).generateToken(anyString(), anyString());
         verify(fakeDatastore, never()).addUser(any());
     }
 
     @Test
     void authenticateUser_newUser_generatesAndStoresToken() {
-        User fromRepo = new User(EMAIL, HASHED_PW, null);
+        User fromRepo = new User(EMAIL, HASHED_PW, role);
         fromRepo.setIsActive(true);
         when(userRepository.findByEmailIgnoreCase(EMAIL))
                 .thenReturn(Optional.of(fromRepo));
@@ -144,7 +149,7 @@ class AuthenticationServiceTest {
                 .thenReturn(true);
 
         when(fakeDatastore.getUserByEmail(EMAIL)).thenReturn(null);
-        when(jwtUtil.generateToken(EMAIL)).thenReturn(TOKEN);
+        when(jwtUtil.generateToken(eq(EMAIL), anyString())).thenReturn(TOKEN);
 
         AuthenticationFormDto form = new AuthenticationFormDto();
         form.setEmail(EMAIL);
@@ -155,7 +160,7 @@ class AuthenticationServiceTest {
         assertEquals(200, resp.getStatusCode().value());
         assertEquals(TOKEN, resp.getBody());
 
-        verify(jwtUtil).generateToken(EMAIL);
+        verify(jwtUtil).generateToken(eq(EMAIL), anyString());
         verify(fakeDatastore).addUser(argThat(u ->
                 EMAIL.equals(u.getEmail()) &&
                         TOKEN.equals(u.getToken())

@@ -41,6 +41,26 @@ public class Datastore {
     }
 
     /**
+     * Updates an existing user in the list of online users.
+     * Searches for a user with the same ID as the provided user.
+     * If found, replaces the existing user with the new user object.
+     * If no user with the given ID exists, throws an IllegalArgumentException.
+     *
+     * @param user the User object containing updated information
+     * @throws IllegalArgumentException if the user is not found in the online users list
+     */
+    public void updateUser(User user) {
+        for (int i = 0; i < onlineUsers.size(); i++) {
+            if (onlineUsers.get(i).getId().equals(user.getId())) {
+                onlineUsers.set(i, user);
+                return;
+            }
+        }
+
+        throw new IllegalArgumentException("User not found in online users list.");
+    }
+
+    /**
      * Clears the list of online users.
      */
     public void clearOnlineUsers() {

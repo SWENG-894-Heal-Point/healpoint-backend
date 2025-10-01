@@ -3,9 +3,24 @@ package edu.psgv.healpointbackend.model;
 import lombok.Getter;
 import lombok.Setter;
 
+
+/**
+ * Represents a doctor's profile, extending the Doctor entity.
+ * Includes additional fields for email and role.
+ *
+ * @author Mahfuzur Rahman
+ */
 @Getter
 @Setter
 public class DoctorProfile extends Doctor {
+
+    /**
+     * Constructs a DoctorProfile from a Doctor entity, email, and role.
+     *
+     * @param doctor the Doctor entity
+     * @param email  the email of the doctor
+     * @param role   the role of the doctor
+     */
     public DoctorProfile(Doctor doctor, String email, String role) {
         this.email = email;
         this.role = role;
@@ -18,7 +33,7 @@ public class DoctorProfile extends Doctor {
         this.setMedicalDegree(doctor.getMedicalDegree());
         this.setSpecialty(doctor.getSpecialty());
         this.setNpiNumber(doctor.getNpiNumber());
-        this.setYearsOfExperience(doctor.getYearsOfExperience());
+        this.setExperience(doctor.getExperience());
         this.setLanguages(doctor.getLanguages());
     }
 
