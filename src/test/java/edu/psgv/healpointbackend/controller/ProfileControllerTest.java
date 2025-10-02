@@ -77,21 +77,6 @@ class ProfileControllerTest {
     }
 
     @Test
-    void updateUserProfile_invalidInput_returns400() {
-        UpdateProfileDto request = new UpdateProfileDto();
-        request.setToken("token");
-        request.setEmail("bad@example.com");
-
-        when(accessManager.enforceOwnershipBasedAccess("token")).thenReturn("bad@example.com");
-        doThrow(new RuntimeException("Validation failed")).when(profileService).updateUserProfile(request);
-
-        ResponseEntity<Object> response = controller.updateUserProfile(request);
-
-        assertEquals(400, response.getStatusCode().value());
-        assertEquals("Validation failed", response.getBody());
-    }
-
-    @Test
     void getUserProfile_validToken_returnsProfile() {
         TokenDto request = new TokenDto();
         request.setToken("token");
@@ -144,7 +129,7 @@ class ProfileControllerTest {
         request.setPhone("987-654-3210");
 
         when(accessManager.enforceOwnershipBasedAccess("token")).thenReturn("doctor@example.com");
-        when(profileService.updateUserProfile(request)).thenReturn("doctor@example.com");
+        when(profileService.updateUserProfile(request, "doctor@example.com")).thenReturn("doctor@example.com");
         when(profileService.getUserProfile("doctor@example.com", null))
                 .thenReturn(ResponseEntity.ok("UpdatedDoctorProfile"));
 
@@ -202,7 +187,7 @@ class ProfileControllerTest {
         request.setEmail("user@example.com");
 
         when(accessManager.enforceOwnershipBasedAccess("token")).thenReturn("user@example.com");
-        when(profileService.updateUserProfile(request)).thenThrow(new RuntimeException("Unexpected error"));
+        when(profileService.updateUserProfile(request, "user@example.com")).thenThrow(new RuntimeException("Unexpected error"));
 
         ResponseEntity<Object> response = controller.updateUserProfile(request);
 

@@ -207,24 +207,25 @@ class ProfileServiceTest {
         Patient patient = Patient.builder().id(10).build();
 
         UpdateProfileDto dto = new UpdateProfileDto();
-        dto.setEmail("patient@example.com");
+        dto.setEmail("newPatient@example.com");
         dto.setToken("token");
         dto.setGender("M");
         dto.setPhone("1234567890");
 
-        when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.empty());
+        when(userRepository.findByEmailIgnoreCase(user.getEmail())).thenReturn(Optional.of(user));
         when(patientRepository.findById(10)).thenReturn(Optional.of(patient));
 
-        User loggedUser = mockUser(10, "old@example.com", Roles.PATIENT);
+        User loggedUser = mockUser(10, "patient@example.com", Roles.PATIENT);
         when(datastore.getUserByToken("token")).thenReturn(loggedUser);
 
-        String updatedEmail = profileService.updateUserProfile(dto);
+        String updatedEmail = profileService.updateUserProfile(dto, "patient@example.com");
 
         verify(userRepository).save(user);
         verify(patientRepository).save(patient);
         verify(datastore).updateUser(loggedUser);
 
-        assertEquals("patient@example.com", updatedEmail);
+        assertEquals("newPatient@example.com", updatedEmail);
     }
 
     @Test
@@ -233,24 +234,25 @@ class ProfileServiceTest {
         Doctor doctor = Doctor.builder().id(11).build();
 
         UpdateProfileDto dto = new UpdateProfileDto();
-        dto.setEmail("doctor@example.com");
+        dto.setEmail("newDoctor@example.com");
         dto.setToken("token");
         dto.setGender("F");
         dto.setPhone("9876543210");
 
-        when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.empty());
+        when(userRepository.findByEmailIgnoreCase(user.getEmail())).thenReturn(Optional.of(user));
         when(doctorRepository.findById(11)).thenReturn(Optional.of(doctor));
 
-        User loggedUser = mockUser(11, "old@example.com", Roles.DOCTOR);
+        User loggedUser = mockUser(11, "doctor@example.com", Roles.DOCTOR);
         when(datastore.getUserByToken("token")).thenReturn(loggedUser);
 
-        String updatedEmail = profileService.updateUserProfile(dto);
+        String updatedEmail = profileService.updateUserProfile(dto, "doctor@example.com");
 
         verify(userRepository).save(user);
         verify(doctorRepository).save(doctor);
         verify(datastore).updateUser(loggedUser);
 
-        assertEquals("doctor@example.com", updatedEmail);
+        assertEquals("newDoctor@example.com", updatedEmail);
     }
 
     @Test
@@ -260,7 +262,7 @@ class ProfileServiceTest {
 
         when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> profileService.updateUserProfile(dto));
+        assertThrows(EntityNotFoundException.class, () -> profileService.updateUserProfile(dto, "old@example.com"));
     }
 
     @Test
@@ -272,7 +274,7 @@ class ProfileServiceTest {
         when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.of(user));
         when(patientRepository.findById(12)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> profileService.updateUserProfile(dto));
+        assertThrows(EntityNotFoundException.class, () -> profileService.updateUserProfile(dto, "patient2@example.com"));
     }
 
     @Test
@@ -284,6 +286,6 @@ class ProfileServiceTest {
         when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.of(user));
         when(doctorRepository.findById(13)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> profileService.updateUserProfile(dto));
+        assertThrows(EntityNotFoundException.class, () -> profileService.updateUserProfile(dto, "doctor2@example.com"));
     }
 }

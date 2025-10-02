@@ -145,13 +145,18 @@ public class ProfileService {
      * @return the updated email address of the user
      * @throws EntityNotFoundException if the user or profile is not found
      */
-    public String updateUserProfile(UpdateProfileDto dto) {
-        String email = dto.getEmail();
-        LOGGER.info("Updating profile for email={}", email);
+    public String updateUserProfile(UpdateProfileDto dto, String requestorEmail) {
+        LOGGER.info("Updating profile for email={}", requestorEmail);
+        if (!requestorEmail.equalsIgnoreCase(dto.getEmail())) {
+            if (userRepository.findByEmailIgnoreCase(dto.getEmail()).isPresent()) {
+                LOGGER.warn("Update failed: You cannot update to this email address because it’s already in use. {}", dto.getEmail());
+                throw new IllegalArgumentException("Update failed: You cannot update to this email address because it’s already in use.");
+            }
+        }
 
-        User user = userRepository.findByEmailIgnoreCase(email)
+        User user = userRepository.findByEmailIgnoreCase(requestorEmail)
                 .orElseThrow(() -> {
-                    LOGGER.warn("Update failed: no account found for email={}", email);
+                    LOGGER.warn("Update failed: no account found for email={}", requestorEmail);
                     return new EntityNotFoundException("No account associated with this email address.");
                 });
 
@@ -167,7 +172,7 @@ public class ProfileService {
         }
 
         String roleDesc = user.getRole().getDescription();
-        LOGGER.debug("Processing profile update for role={} email={}", roleDesc, email);
+        LOGGER.debug("Processing profile update for role={} email={}", roleDesc, user.getEmail());
 
         switch (roleDesc.toUpperCase()) {
             case Roles.PATIENT -> updatePatientProfile(user, dto);

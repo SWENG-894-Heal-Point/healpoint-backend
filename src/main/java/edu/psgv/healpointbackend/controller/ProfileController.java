@@ -78,7 +78,7 @@ public class ProfileController {
             String requestorEmail = accessManager.enforceOwnershipBasedAccess(request.getToken());
             LOGGER.debug("Ownership verified for email={}", requestorEmail);
 
-            String emailAtPresent = profileService.updateUserProfile(request);
+            String emailAtPresent = profileService.updateUserProfile(request, requestorEmail);
             LOGGER.info("Profile updated successfully for email={}", emailAtPresent);
 
             return profileService.getUserProfile(emailAtPresent, null);
