@@ -1,5 +1,6 @@
 package edu.psgv.healpointbackend.controller;
 
+import edu.psgv.healpointbackend.dto.NewPasswordDto;
 import edu.psgv.healpointbackend.dto.TokenDto;
 import edu.psgv.healpointbackend.dto.UpdateProfileDto;
 import edu.psgv.healpointbackend.dto.UserLookupDto;
@@ -89,6 +90,35 @@ public class ProfileController {
             return ResponseEntity.status(401).body(e.getMessage());
         } catch (Exception e) {
             LOGGER.error("Unexpected error updating profile for email={}: {}", request.getEmail(), e.getMessage(), e);
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Endpoint to update the password of the authenticated user.
+     *
+     * @param request DTO containing the new password and authentication token
+     * @return ResponseEntity indicating success or failure of the operation
+     */
+    @PostMapping("/api/update-my-password")
+    public ResponseEntity<String> updateMyPassword(@Valid @RequestBody NewPasswordDto request) {
+        LOGGER.info("Received request to update password");
+        try {
+            String requestorEmail = accessManager.enforceOwnershipBasedAccess(request.getToken());
+            LOGGER.debug("Ownership verified for email={}", requestorEmail);
+
+            profileService.updatePassword(request);
+            LOGGER.info("Password updated successfully for email={}", requestorEmail);
+
+            return ResponseEntity.ok("Password updated successfully.");
+        } catch (SecurityException e) {
+            LOGGER.warn("Unauthorized password update attempt", e);
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("Password update failed: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Unexpected error updating password: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

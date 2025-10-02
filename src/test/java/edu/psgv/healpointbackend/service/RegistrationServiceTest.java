@@ -81,6 +81,8 @@ class RegistrationServiceTest {
             request.setCity("Springfield");
             request.setState("IL");
             request.setZipCode("62704");
+            request.setInsuranceProvider("HealthCare Inc.");
+            request.setInsuranceId("INS123456");
 
             when(userRepository.findByEmailIgnoreCase("newuser@example.com")).thenReturn(Optional.empty());
             Role role = new Role();
@@ -115,6 +117,8 @@ class RegistrationServiceTest {
             request.setMedicalDegree("MD");
             request.setSpecialty("Cardiology");
             request.setNpiNumber("456123789");
+            request.setExperience(15);
+            request.setLanguages("English");
 
             EmployeeAccount existingEmployee = new EmployeeAccount("new.doctor@example.com", null);
             when(employeeAccountRepository.findByEmailIgnoreCase("new.doctor@example.com")).thenReturn(Optional.of(existingEmployee));
