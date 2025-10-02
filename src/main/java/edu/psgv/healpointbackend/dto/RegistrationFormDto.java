@@ -35,9 +35,6 @@ public class RegistrationFormDto extends RoleBasedDto {
     String password;
 
     @NotBlank
-    String role;
-
-    @NotBlank
     String confirmPassword;
 
     @NotBlank

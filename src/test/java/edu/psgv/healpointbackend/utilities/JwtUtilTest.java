@@ -32,7 +32,7 @@ class JwtUtilTest {
         // mark time window
         Date before = new Date();
         Thread.sleep(1000);
-        String token = jwtUtil.generateToken(email);
+        String token = jwtUtil.generateToken(email, "patient");
         Date after = new Date();
 
         // parse back
@@ -46,6 +46,7 @@ class JwtUtilTest {
         assertNotNull(token);
         assertFalse(token.isEmpty());
         assertEquals(email, body.getSubject());
+        assertEquals("patient", body.get("role", String.class));
         assertTrue((issuedAt.compareTo(before) >= 0 && issuedAt.compareTo(after) <= 0),"issuedAt should be stamped between before and after generation");
 
         long delta = expiration.getTime() - issuedAt.getTime();
@@ -57,8 +58,8 @@ class JwtUtilTest {
         String a = "a@example.com";
         String b = "b@example.com";
 
-        String tA = jwtUtil.generateToken(a);
-        String tB = jwtUtil.generateToken(b);
+        String tA = jwtUtil.generateToken(a, "doctor");
+        String tB = jwtUtil.generateToken(b, "doctor");
 
         assertNotEquals(tA, tB, "Tokens for different subjects must differ");
     }

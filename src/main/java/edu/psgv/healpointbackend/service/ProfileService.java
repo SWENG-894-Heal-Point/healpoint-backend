@@ -1,11 +1,13 @@
 package edu.psgv.healpointbackend.service;
 
 import edu.psgv.healpointbackend.common.state.Datastore;
+import edu.psgv.healpointbackend.dto.NewPasswordDto;
 import edu.psgv.healpointbackend.dto.UpdateProfileDto;
 import edu.psgv.healpointbackend.model.*;
 import edu.psgv.healpointbackend.repository.DoctorRepository;
 import edu.psgv.healpointbackend.repository.PatientRepository;
 import edu.psgv.healpointbackend.repository.UserRepository;
+import edu.psgv.healpointbackend.utilities.PasswordUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -99,6 +101,43 @@ public class ProfileService {
     }
 
     /**
+     * Updates the password for the authenticated user.
+     *
+     * @param dto the data transfer object containing the token, old password,
+     *            new password, and confirmation of the new password
+     * @throws SecurityException        if the user is not authenticated or the old password is incorrect
+     * @throws IllegalArgumentException if the new password and its confirmation do not match
+     */
+    public void updatePassword(NewPasswordDto dto) {
+        LOGGER.info("Password update attempt.");
+        User user = datastore.getUserByToken(dto.getToken());
+        if (user == null) {
+            LOGGER.warn("Password update failed: user not authenticated or authorized.");
+            throw new SecurityException("Access denied: User not authenticated or authorized.");
+        }
+
+        boolean verifyOldPassword = PasswordUtils.verifyPassword(dto.getOldPassword(), user.getPassword());
+        if (!verifyOldPassword) {
+            LOGGER.warn("Password update failed: incorrect old password for user {}", user.getEmail());
+            throw new SecurityException("Incorrect old password. Please try again.");
+        }
+
+        boolean isSamePassword = dto.getNewPassword().equals(dto.getConfirmNewPassword());
+        if (!isSamePassword) {
+            LOGGER.warn("Password update failed: new password and confirmation do not match for user {}", user.getEmail());
+            throw new IllegalArgumentException("The new password and its confirmation do not match.");
+        }
+
+        String newHashedPassword = PasswordUtils.hashPassword(dto.getNewPassword());
+        user.setPassword(newHashedPassword);
+        userRepository.save(user);
+        datastore.updateUser(user);
+
+        LOGGER.info("Password successfully updated for user {}", user.getEmail());
+    }
+
+
+    /**
      * Updates the profile information for a user.
      * Handles updates for Patient and Doctor profiles based on user role.
      *
@@ -106,13 +145,18 @@ public class ProfileService {
      * @return the updated email address of the user
      * @throws EntityNotFoundException if the user or profile is not found
      */
-    public String updateUserProfile(UpdateProfileDto dto) {
-        String email = dto.getEmail();
-        LOGGER.info("Updating profile for email={}", email);
+    public String updateUserProfile(UpdateProfileDto dto, String requestorEmail) {
+        LOGGER.info("Updating profile for email={}", requestorEmail);
+        if (!requestorEmail.equalsIgnoreCase(dto.getEmail())) {
+            if (userRepository.findByEmailIgnoreCase(dto.getEmail()).isPresent()) {
+                LOGGER.warn("Update failed: You cannot update to this email address because it’s already in use. {}", dto.getEmail());
+                throw new IllegalArgumentException("Update failed: You cannot update to this email address because it’s already in use.");
+            }
+        }
 
-        User user = userRepository.findByEmailIgnoreCase(email)
+        User user = userRepository.findByEmailIgnoreCase(requestorEmail)
                 .orElseThrow(() -> {
-                    LOGGER.warn("Update failed: no account found for email={}", email);
+                    LOGGER.warn("Update failed: no account found for email={}", requestorEmail);
                     return new EntityNotFoundException("No account associated with this email address.");
                 });
 
@@ -123,13 +167,12 @@ public class ProfileService {
         User loggedUser = datastore.getUserByToken(dto.getToken());
         if (loggedUser != null) {
             LOGGER.debug("Refreshing user in datastore for email={} token={}", dto.getEmail(), dto.getToken());
-            datastore.removeUser(loggedUser);
             loggedUser.setEmail(dto.getEmail());
-            datastore.addUser(loggedUser);
+            datastore.updateUser(loggedUser);
         }
 
         String roleDesc = user.getRole().getDescription();
-        LOGGER.debug("Processing profile update for role={} email={}", roleDesc, email);
+        LOGGER.debug("Processing profile update for role={} email={}", roleDesc, user.getEmail());
 
         switch (roleDesc.toUpperCase()) {
             case Roles.PATIENT -> updatePatientProfile(user, dto);
@@ -187,7 +230,7 @@ public class ProfileService {
         doctor.setPhone(dto.getPhone());
         doctor.setMedicalDegree(dto.getMedicalDegree());
         doctor.setSpecialty(dto.getSpecialty());
-        doctor.setYearsOfExperience(dto.getExperience());
+        doctor.setExperience(dto.getExperience());
         doctor.setNpiNumber(dto.getNpiNumber());
         doctor.setLanguages(dto.getLanguages());
 

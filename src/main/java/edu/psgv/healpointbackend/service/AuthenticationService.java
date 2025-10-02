@@ -76,7 +76,7 @@ public class AuthenticationService {
                 return ResponseEntity.ok(existingUser.getToken());
             }
 
-            String token = jwtUtil.generateToken(user.getEmail());
+            String token = jwtUtil.generateToken(user.getEmail(), user.getRole().getDescription());
             user.setToken(token);
             datastore.addUser(user);
 

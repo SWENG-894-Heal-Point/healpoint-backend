@@ -165,7 +165,7 @@ public class TestDataSeeder implements CommandLineRunner {
      * Reads each doctor entry from the JSON file, constructs a Doctor entity using the builder pattern,
      * and persists it using the DoctorRepository. Assumes the JSON structure contains fields:
      * "DoctorID", "FirstName", "LastName", "DateOfBirth", "Gender", "Phone", "MedicalDegree",
-     * "Specialty", "NIPNumber", "YearsOfExperience", and "Languages".
+     * "Specialty", "NIPNumber", "Experience", and "Languages".
      * </p>
      *
      * @throws IOException if an error occurs during file reading or JSON parsing
@@ -183,7 +183,7 @@ public class TestDataSeeder implements CommandLineRunner {
                     .medicalDegree(node.get("MedicalDegree").asText())
                     .specialty(node.get("Specialty").asText())
                     .npiNumber(node.get("NIPNumber").asText())
-                    .yearsOfExperience(node.get("YearsOfExperience").asInt())
+                    .experience(node.get("Experience").asInt())
                     .languages(node.get("Languages").asText())
                     .build();
             doctorRepository.save(doctor);

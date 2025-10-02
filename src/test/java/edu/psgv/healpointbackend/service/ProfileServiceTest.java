@@ -1,15 +1,19 @@
 package edu.psgv.healpointbackend.service;
 
 import edu.psgv.healpointbackend.common.state.Datastore;
+import edu.psgv.healpointbackend.dto.NewPasswordDto;
 import edu.psgv.healpointbackend.dto.UpdateProfileDto;
 import edu.psgv.healpointbackend.model.*;
 import edu.psgv.healpointbackend.repository.DoctorRepository;
 import edu.psgv.healpointbackend.repository.PatientRepository;
 import edu.psgv.healpointbackend.repository.UserRepository;
+import edu.psgv.healpointbackend.utilities.PasswordUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
+import org.mockito.MockedStatic;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +56,15 @@ class ProfileServiceTest {
         }
 
         return user;
+    }
+
+    private NewPasswordDto mockPasswordDto(String token, String oldPassword, String newPassword, String confirmPassword) {
+        NewPasswordDto dto = new NewPasswordDto();
+        dto.setToken(token);
+        dto.setOldPassword(oldPassword);
+        dto.setNewPassword(newPassword);
+        dto.setConfirmNewPassword(confirmPassword);
+        return dto;
     }
 
     @Test
@@ -140,6 +153,53 @@ class ProfileServiceTest {
         assertEquals("DB failure", response.getBody());
     }
 
+    @Test
+    void updatePassword_validInput_passwordUpdated() {
+        User user = new User("test@example.com", "hashedOld", null);
+        NewPasswordDto dto = mockPasswordDto("token", "oldPass", "newPass", "newPass");
+
+        when(datastore.getUserByToken("token")).thenReturn(user);
+
+        try (MockedStatic<PasswordUtils> mocked = mockStatic(PasswordUtils.class)) {
+            mocked.when(() -> PasswordUtils.verifyPassword("oldPass", "hashedOld")).thenReturn(true);
+            mocked.when(() -> PasswordUtils.verifyPassword("newPass", "newPass")).thenReturn(true);
+            mocked.when(() -> PasswordUtils.hashPassword("newPass")).thenReturn("hashedNew");
+
+            profileService.updatePassword(dto);
+
+            ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+            verify(userRepository).save(captor.capture());
+            verify(datastore).updateUser(captor.capture());
+
+            User savedUser = captor.getValue();
+            assertEquals("hashedNew", savedUser.getPassword());
+        }
+    }
+
+    @Test
+    void updatePassword_invalidInputs_throwExceptions() {
+        // Case 1: User not found
+        NewPasswordDto dto1 = mockPasswordDto("badToken", "oldPass", "newPass", "newPass");
+        when(datastore.getUserByToken("badToken")).thenReturn(null);
+        assertThrows(SecurityException.class, () -> profileService.updatePassword(dto1));
+
+        // Case 2 & 3 require static mocks
+        User user = new User("test@example.com", "hashedOld", null);
+        when(datastore.getUserByToken("token")).thenReturn(user);
+
+        try (MockedStatic<PasswordUtils> mocked = mockStatic(PasswordUtils.class)) {
+            // Case 2: wrong old password
+            NewPasswordDto dto2 = mockPasswordDto("token", "wrongOld", "newPass", "newPass");
+            mocked.when(() -> PasswordUtils.verifyPassword("wrongOld", "hashedOld")).thenReturn(false);
+            assertThrows(SecurityException.class, () -> profileService.updatePassword(dto2));
+
+            // Case 3: mismatch new password
+            NewPasswordDto dto3 = mockPasswordDto("token", "oldPass", "newPass", "mismatchPass");
+            mocked.when(() -> PasswordUtils.verifyPassword("oldPass", "hashedOld")).thenReturn(true);
+            mocked.when(() -> PasswordUtils.verifyPassword("newPass", "mismatchPass")).thenReturn(false);
+            assertThrows(IllegalArgumentException.class, () -> profileService.updatePassword(dto3));
+        }
+    }
 
     @Test
     void updateUserProfile_existingPatient_updatesUserAndPatientProfile() {
@@ -147,25 +207,25 @@ class ProfileServiceTest {
         Patient patient = Patient.builder().id(10).build();
 
         UpdateProfileDto dto = new UpdateProfileDto();
-        dto.setEmail("patient@example.com");
+        dto.setEmail("newPatient@example.com");
         dto.setToken("token");
         dto.setGender("M");
         dto.setPhone("1234567890");
 
-        when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.empty());
+        when(userRepository.findByEmailIgnoreCase(user.getEmail())).thenReturn(Optional.of(user));
         when(patientRepository.findById(10)).thenReturn(Optional.of(patient));
 
-        User loggedUser = mockUser(10, "old@example.com", Roles.PATIENT);
+        User loggedUser = mockUser(10, "patient@example.com", Roles.PATIENT);
         when(datastore.getUserByToken("token")).thenReturn(loggedUser);
 
-        String updatedEmail = profileService.updateUserProfile(dto);
+        String updatedEmail = profileService.updateUserProfile(dto, "patient@example.com");
 
         verify(userRepository).save(user);
         verify(patientRepository).save(patient);
-        verify(datastore).removeUser(loggedUser);
-        verify(datastore).addUser(loggedUser);
+        verify(datastore).updateUser(loggedUser);
 
-        assertEquals("patient@example.com", updatedEmail);
+        assertEquals("newPatient@example.com", updatedEmail);
     }
 
     @Test
@@ -174,25 +234,25 @@ class ProfileServiceTest {
         Doctor doctor = Doctor.builder().id(11).build();
 
         UpdateProfileDto dto = new UpdateProfileDto();
-        dto.setEmail("doctor@example.com");
+        dto.setEmail("newDoctor@example.com");
         dto.setToken("token");
         dto.setGender("F");
         dto.setPhone("9876543210");
 
-        when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.empty());
+        when(userRepository.findByEmailIgnoreCase(user.getEmail())).thenReturn(Optional.of(user));
         when(doctorRepository.findById(11)).thenReturn(Optional.of(doctor));
 
-        User loggedUser = mockUser(11, "old@example.com", Roles.DOCTOR);
+        User loggedUser = mockUser(11, "doctor@example.com", Roles.DOCTOR);
         when(datastore.getUserByToken("token")).thenReturn(loggedUser);
 
-        String updatedEmail = profileService.updateUserProfile(dto);
+        String updatedEmail = profileService.updateUserProfile(dto, "doctor@example.com");
 
         verify(userRepository).save(user);
         verify(doctorRepository).save(doctor);
-        verify(datastore).removeUser(loggedUser);
-        verify(datastore).addUser(loggedUser);
+        verify(datastore).updateUser(loggedUser);
 
-        assertEquals("doctor@example.com", updatedEmail);
+        assertEquals("newDoctor@example.com", updatedEmail);
     }
 
     @Test
@@ -202,7 +262,7 @@ class ProfileServiceTest {
 
         when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> profileService.updateUserProfile(dto));
+        assertThrows(EntityNotFoundException.class, () -> profileService.updateUserProfile(dto, "old@example.com"));
     }
 
     @Test
@@ -214,7 +274,7 @@ class ProfileServiceTest {
         when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.of(user));
         when(patientRepository.findById(12)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> profileService.updateUserProfile(dto));
+        assertThrows(EntityNotFoundException.class, () -> profileService.updateUserProfile(dto, "patient2@example.com"));
     }
 
     @Test
@@ -226,6 +286,6 @@ class ProfileServiceTest {
         when(userRepository.findByEmailIgnoreCase(dto.getEmail())).thenReturn(Optional.of(user));
         when(doctorRepository.findById(13)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> profileService.updateUserProfile(dto));
+        assertThrows(EntityNotFoundException.class, () -> profileService.updateUserProfile(dto, "doctor2@example.com"));
     }
 }

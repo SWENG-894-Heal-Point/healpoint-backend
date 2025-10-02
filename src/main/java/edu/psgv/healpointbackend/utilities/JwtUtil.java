@@ -25,7 +25,7 @@ public class JwtUtil {
      * @param email the email address to include as the subject in the token
      * @return a signed JWT as a String
      */
-    public String generateToken(String email) {
+    public String generateToken(String email, String role) {
         String secret = CONFIG_READER.get("jwtSecretKey");
         long validityInMs = 3600_000;
 
@@ -35,6 +35,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setSubject(email)
+                .claim("role", role)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(key)
