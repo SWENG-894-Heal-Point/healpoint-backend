@@ -1,18 +1,21 @@
 package edu.psgv.healpointbackend;
 
-import edu.psgv.healpointbackend.model.*;
-import edu.psgv.healpointbackend.repository.*;
-
 import edu.psgv.healpointbackend.utilities.ConfigReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+
+/**
+ * Main application class for Healpoint Backend.
+ * Configures and runs the Spring Boot application.
+ *
+ * @author Mahfuzur Rahman
+ */
 @SpringBootApplication
 public class HealpointBackendApplication {
 
@@ -28,7 +31,7 @@ public class HealpointBackendApplication {
      * Override the WebMvcConfigurer object with CORS configuration
      */
     @Configuration
-    public class WebCorsConfig implements WebMvcConfigurer {
+    public static class WebCorsConfig implements WebMvcConfigurer {
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/api/**")

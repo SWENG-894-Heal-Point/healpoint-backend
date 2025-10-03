@@ -1,19 +1,17 @@
 package edu.psgv.healpointbackend.service;
 
-import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
-
 import edu.psgv.healpointbackend.common.state.Datastore;
 import edu.psgv.healpointbackend.dto.AuthenticationFormDto;
 import edu.psgv.healpointbackend.model.User;
 import edu.psgv.healpointbackend.repository.UserRepository;
-
 import edu.psgv.healpointbackend.utilities.JwtUtil;
 import edu.psgv.healpointbackend.utilities.PasswordUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
+import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
 
 
 /**
@@ -32,23 +30,11 @@ public class AuthenticationService {
      * Constructs the AuthenticationService with the required UserRepository.
      * Initializes JwtUtil and Datastore instances.
      *
-     * @param userRepository the user repository to use
-     */
-    @Autowired
-    public AuthenticationService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-        this.jwtUtil = new JwtUtil();
-        this.datastore = Datastore.getInstance();
-    }
-
-    /**
-     * Protected constructor for testing or advanced dependency injection.
-     *
      * @param userRepository the user repository
      * @param jwtUtil        the JWT utility
      * @param datastore      the datastore instance
      */
-    protected AuthenticationService(UserRepository userRepository, JwtUtil jwtUtil, Datastore datastore) {
+    public AuthenticationService(UserRepository userRepository, JwtUtil jwtUtil, Datastore datastore) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.datastore = datastore;
@@ -73,7 +59,7 @@ public class AuthenticationService {
             }
 
             User user = userOpt.get();
-            if (!user.getIsActive()) {
+            if (Boolean.FALSE.equals(user.getIsActive())) {
                 LOGGER.warn("Authentication failed: inactive account for email {}", email);
                 return ResponseEntity.status(403).body("This account is inactive. Please contact support.");
             }
@@ -90,14 +76,14 @@ public class AuthenticationService {
                 return ResponseEntity.ok(existingUser.getToken());
             }
 
-            String token = jwtUtil.generateToken(user.getEmail());
+            String token = jwtUtil.generateToken(user.getEmail(), user.getRole().getDescription());
             user.setToken(token);
             datastore.addUser(user);
 
             LOGGER.info("Authentication successful for email {}. Token issued.", email);
             return ResponseEntity.ok(token);
         } catch (Exception e) {
-            LOGGER.error("Unexpected error during a for {}: {}", authenticationFormDto.getEmail(), e.getMessage(), e);
+            LOGGER.error("Unexpected error during authentication for {}: {}", authenticationFormDto.getEmail(), e.getMessage(), e);
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }

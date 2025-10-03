@@ -1,17 +1,16 @@
 package edu.psgv.healpointbackend.service;
 
-import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
-
+import edu.psgv.healpointbackend.dto.RegistrationFormDto;
+import edu.psgv.healpointbackend.model.*;
+import edu.psgv.healpointbackend.repository.*;
 import edu.psgv.healpointbackend.utilities.IoHelper;
 import edu.psgv.healpointbackend.utilities.PasswordUtils;
-import edu.psgv.healpointbackend.dto.RegistrationFormDto;
-import edu.psgv.healpointbackend.repository.*;
-import edu.psgv.healpointbackend.model.*;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
+import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
 
 
 /**
@@ -91,7 +90,7 @@ public class RegistrationService {
                     .orElseThrow(() -> new IllegalArgumentException("Invalid role."));
 
             EmployeeAccount employeeAccount = null;
-            if (!role.getDescription().equalsIgnoreCase(Roles.PATIENT.toString())) {
+            if (!role.getDescription().equalsIgnoreCase(Roles.PATIENT)) {
                 Optional<EmployeeAccount> employeeAccountOpt = employeeAccountRepository.findByEmailIgnoreCase(request.getEmail());
                 if (employeeAccountOpt.isEmpty()) {
                     LOGGER.warn("Registration failed — employee email does not exist: {}", request.getEmail());
@@ -114,10 +113,10 @@ public class RegistrationService {
                 LOGGER.info("Linked EmployeeAccount ID: {} with User ID: {}", employeeAccount.getId(), newUser.getId());
             }
 
-            if (role.getDescription().equalsIgnoreCase(Roles.PATIENT.toString())) {
+            if (role.getDescription().equalsIgnoreCase(Roles.PATIENT)) {
                 LOGGER.info("Creating Patient profile for user ID: {}", newUser.getId());
                 patientRepository.save(createPatient(newUser, request));
-            } else if (role.getDescription().equalsIgnoreCase(Roles.DOCTOR.toString())) {
+            } else if (role.getDescription().equalsIgnoreCase(Roles.DOCTOR)) {
                 LOGGER.info("Creating Doctor profile for user ID: {}", newUser.getId());
                 doctorRepository.save(createDoctor(newUser, request));
             }
@@ -188,7 +187,7 @@ public class RegistrationService {
         }
         if (request.getExperience() != null && request.getExperience() >= 0) {
             LOGGER.debug("Adding years of experience for Doctor ID: {}", user.getId());
-            newDoctor.setYearsOfExperience(request.getExperience());
+            newDoctor.setExperience(request.getExperience());
         }
 
         return newDoctor;

@@ -26,6 +26,8 @@ class RegistrationServiceTest {
     @Mock
     private PatientRepository patientRepository;
     @Mock
+    private DoctorRepository doctorRepository;
+    @Mock
     private EmployeeAccountRepository employeeAccountRepository;
 
     @Mock
@@ -63,7 +65,7 @@ class RegistrationServiceTest {
     }
 
     @Test
-    void registerUser_successfulRegistration_returns200() {
+    void registerUser_successfulPatientRegistration_returns200() {
         try (MockedStatic<PasswordUtils> passwordUtilsMock = mockStatic(PasswordUtils.class)) {
             RegistrationFormDto request = new RegistrationFormDto();
             request.setEmail("newuser@example.com");
@@ -79,6 +81,8 @@ class RegistrationServiceTest {
             request.setCity("Springfield");
             request.setState("IL");
             request.setZipCode("62704");
+            request.setInsuranceProvider("HealthCare Inc.");
+            request.setInsuranceId("INS123456");
 
             when(userRepository.findByEmailIgnoreCase("newuser@example.com")).thenReturn(Optional.empty());
             Role role = new Role();
@@ -86,6 +90,45 @@ class RegistrationServiceTest {
             when(roleRepository.findByDescriptionIgnoreCase("PATIENT")).thenReturn(Optional.of(role));
             when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
             when(patientRepository.save(any(Patient.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            passwordUtilsMock.when(() -> PasswordUtils.hashPassword("password123*")).thenReturn("hashedPassword");
+
+            ResponseEntity<String> response = registrationService.registerUser(request);
+
+            assertEquals(200, response.getStatusCode().value());
+            assertEquals("User registered successfully.", response.getBody());
+            passwordUtilsMock.verify(() -> PasswordUtils.hashPassword("password123*"));
+        }
+    }
+
+    @Test
+    void registerUser_successfulDoctorRegistration_returns200() {
+        try (MockedStatic<PasswordUtils> passwordUtilsMock = mockStatic(PasswordUtils.class)) {
+            RegistrationFormDto request = new RegistrationFormDto();
+            request.setEmail("new.doctor@example.com");
+            request.setPassword("password123*");
+            request.setConfirmPassword("password123*");
+            request.setRole("DOCTOR");
+            request.setFirstName("John");
+            request.setLastName("Doe");
+            request.setDateOfBirth(LocalDate.parse("1990-01-01"));
+            request.setGender("Male");
+            request.setPhone("1234567890");
+            request.setMedicalDegree("MD");
+            request.setSpecialty("Cardiology");
+            request.setNpiNumber("456123789");
+            request.setExperience(15);
+            request.setLanguages("English");
+
+            EmployeeAccount existingEmployee = new EmployeeAccount("new.doctor@example.com", null);
+            when(employeeAccountRepository.findByEmailIgnoreCase("new.doctor@example.com")).thenReturn(Optional.of(existingEmployee));
+
+            when(userRepository.findByEmailIgnoreCase("new.doctor@example.com")).thenReturn(Optional.empty());
+            Role role = new Role();
+            role.setDescription("DOCTOR");
+            when(roleRepository.findByDescriptionIgnoreCase("DOCTOR")).thenReturn(Optional.of(role));
+            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(doctorRepository.save(any(Doctor.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             passwordUtilsMock.when(() -> PasswordUtils.hashPassword("password123*")).thenReturn("hashedPassword");
 

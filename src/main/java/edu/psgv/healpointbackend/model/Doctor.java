@@ -1,7 +1,9 @@
 package edu.psgv.healpointbackend.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
  * @author Mahfuzur Rahman
  */
 @Getter
+@Setter
 @Entity
 @Table(name = "Doctors", schema = "dbo")
 public class Doctor {
@@ -26,7 +29,7 @@ public class Doctor {
     @Builder
     public Doctor(Integer id, String firstName, String lastName, LocalDate dateOfBirth,
                   String gender, String phone, String medicalDegree, String specialty,
-                  String npiNumber, Integer yearsOfExperience, String languages) {
+                  String npiNumber, Integer experience, String languages) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -36,7 +39,7 @@ public class Doctor {
         this.medicalDegree = medicalDegree;
         this.specialty = specialty;
         this.npiNumber = npiNumber;
-        this.yearsOfExperience = yearsOfExperience;
+        this.experience = experience;
         this.languages = languages;
     }
 
@@ -70,7 +73,7 @@ public class Doctor {
 
     @Setter
     @Column(name = "YearsOfExperience")
-    private Integer yearsOfExperience;
+    private Integer experience;
 
     @Setter
     @Column(name = "Languages", length = 50)

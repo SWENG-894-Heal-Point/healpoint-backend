@@ -2,9 +2,10 @@ package edu.psgv.healpointbackend.common.state;
 
 import edu.psgv.healpointbackend.model.User;
 import edu.psgv.healpointbackend.utilities.IoHelper;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
@@ -13,26 +14,9 @@ import java.util.List;
  *
  * @author Mahfuzur Rahman
  */
+@Component
 public class Datastore {
-    private static final Datastore INSTANCE = new Datastore();
-    private static List<User> onlineUsers;
-
-    /**
-     * Private constructor to enforce singleton pattern.
-     * Initializes the list of online users.
-     */
-    private Datastore() {
-        onlineUsers = new ArrayList<>();
-    }
-
-    /**
-     * Returns the singleton instance of Datastore.
-     *
-     * @return the Datastore instance
-     */
-    public static Datastore getInstance() {
-        return INSTANCE;
-    }
+    private final List<User> onlineUsers = new CopyOnWriteArrayList<>();
 
     /**
      * Adds a user to the list of online users.
@@ -54,6 +38,26 @@ public class Datastore {
      */
     public void removeUser(User user) {
         onlineUsers.remove(user);
+    }
+
+    /**
+     * Updates an existing user in the list of online users.
+     * Searches for a user with the same ID as the provided user.
+     * If found, replaces the existing user with the new user object.
+     * If no user with the given ID exists, throws an IllegalArgumentException.
+     *
+     * @param user the User object containing updated information
+     * @throws IllegalArgumentException if the user is not found in the online users list
+     */
+    public void updateUser(User user) {
+        for (int i = 0; i < onlineUsers.size(); i++) {
+            if (onlineUsers.get(i).getId().equals(user.getId())) {
+                onlineUsers.set(i, user);
+                return;
+            }
+        }
+
+        throw new IllegalArgumentException("User not found in online users list.");
     }
 
     /**

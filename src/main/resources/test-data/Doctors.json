@@ -9,7 +9,7 @@
     "MedicalDegree": "MD",
     "Specialty": "Internal Medicine, Primary Care",
     "NIPNumber": "789456123",
-    "YearsOfExperience": 15,
+    "Experience": 15,
     "Languages": "English",
     "CreatedAt": "2025-09-22 20:07:47.117",
     "UpdatedAt": null
@@ -24,7 +24,7 @@
     "MedicalDegree": "DO",
     "Specialty": "Primary Care, Pediatrics",
     "NIPNumber": "654321789",
-    "YearsOfExperience": 11,
+    "Experience": 11,
     "Languages": "English, German",
     "CreatedAt": "2025-09-22 20:20:57.760",
     "UpdatedAt": null

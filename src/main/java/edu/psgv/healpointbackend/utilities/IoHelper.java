@@ -6,6 +6,11 @@ package edu.psgv.healpointbackend.utilities;
  * @author Mahfuzur Rahman
  */
 public class IoHelper {
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private IoHelper() {
+    }
 
     /**
      * Validates the given string by checking if it is not null, empty, or whitespace only.
