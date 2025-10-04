@@ -1,6 +1,8 @@
 package edu.psgv.healpointbackend;
 
 import edu.psgv.healpointbackend.dto.NewPasswordDto;
+import edu.psgv.healpointbackend.model.Patient;
+import edu.psgv.healpointbackend.model.PatientProfile;
 import edu.psgv.healpointbackend.model.Role;
 import edu.psgv.healpointbackend.model.User;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -10,8 +12,7 @@ public abstract class AbstractTestBase {
         Role role = new Role();
         String hashedPassword = "hashedPassword";
         role.setDescription(roleDescription);
-        User user = new User(email, hashedPassword, role);
-        return user;
+        return new User(email, hashedPassword, role);
     }
 
     protected User mockUser(Integer id, String email, String roleDesc) {
@@ -25,6 +26,15 @@ public abstract class AbstractTestBase {
         }
 
         return user;
+    }
+
+    protected Patient mockPatient(Integer id, String firstName, String lastName) {
+        return Patient.builder().id(id).firstName(firstName).lastName(lastName).build();
+    }
+
+    protected PatientProfile mockPatientProfile(String firstName, String email) {
+        Patient patient = mockPatient(null, firstName, "Example");
+        return new PatientProfile(patient, email, "patient");
     }
 
     protected NewPasswordDto mockPasswordDto(String token, String oldPassword, String newPassword, String confirmPassword) {
