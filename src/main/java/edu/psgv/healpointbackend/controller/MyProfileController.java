@@ -3,10 +3,9 @@ package edu.psgv.healpointbackend.controller;
 import edu.psgv.healpointbackend.dto.NewPasswordDto;
 import edu.psgv.healpointbackend.dto.TokenDto;
 import edu.psgv.healpointbackend.dto.UpdateProfileDto;
-import edu.psgv.healpointbackend.dto.UserLookupDto;
-import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.service.AccessManager;
-import edu.psgv.healpointbackend.service.ProfileService;
+import edu.psgv.healpointbackend.service.ProfileGetService;
+import edu.psgv.healpointbackend.service.ProfileUpdateService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -18,24 +17,27 @@ import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
 
 
 /**
- * REST controller for handling profile-related operations.
- * Provides endpoints for retrieving and updating user, doctor, and patient profiles.
+ * REST controller for handling profile-related operations for the authenticated user.
+ * Provides endpoints for retrieving and updating the user's own profile and password.
  *
  * @author Mahfuzur Rahman
  */
 @RestController
-public class ProfileController {
-    private final ProfileService profileService;
+public class MyProfileController {
+    private final ProfileUpdateService profileUpdateService;
+    private final ProfileGetService profileGetService;
     private final AccessManager accessManager;
 
     /**
-     * Constructs a ProfileController with required services.
+     * Constructs a MyProfileController with required services.
      *
-     * @param profileService service for profile operations
-     * @param accessManager  service for access control
+     * @param profileUpdateService service for profile operations
+     * @param profileGetService    service for profile retrieval
+     * @param accessManager        service for access control
      */
-    public ProfileController(ProfileService profileService, AccessManager accessManager) {
-        this.profileService = profileService;
+    public MyProfileController(ProfileUpdateService profileUpdateService, ProfileGetService profileGetService, AccessManager accessManager) {
+        this.profileUpdateService = profileUpdateService;
+        this.profileGetService = profileGetService;
         this.accessManager = accessManager;
     }
 
@@ -52,7 +54,7 @@ public class ProfileController {
             String requestorEmail = accessManager.enforceOwnershipBasedAccess(request.getToken());
             LOGGER.debug("Ownership verified. Fetching profile for email={}", requestorEmail);
 
-            ResponseEntity<Object> response = profileService.getUserProfile(requestorEmail, null);
+            ResponseEntity<Object> response = profileGetService.getUserProfile(requestorEmail, null);
             LOGGER.info("Profile retrieval successful for email={}", requestorEmail);
 
             return response;
@@ -78,10 +80,10 @@ public class ProfileController {
             String requestorEmail = accessManager.enforceOwnershipBasedAccess(request.getToken());
             LOGGER.debug("Ownership verified for email={}", requestorEmail);
 
-            String emailAtPresent = profileService.updateUserProfile(request, requestorEmail);
+            String emailAtPresent = profileUpdateService.updateUserProfile(request, requestorEmail);
             LOGGER.info("Profile updated successfully for email={}", emailAtPresent);
 
-            return profileService.getUserProfile(emailAtPresent, null);
+            return profileGetService.getUserProfile(emailAtPresent, null);
         } catch (EntityNotFoundException e) {
             LOGGER.warn("Profile update failed - entity not found for email={}", request.getEmail(), e);
             return ResponseEntity.status(404).body(e.getMessage());
@@ -107,7 +109,7 @@ public class ProfileController {
             String requestorEmail = accessManager.enforceOwnershipBasedAccess(request.getToken());
             LOGGER.debug("Ownership verified for email={}", requestorEmail);
 
-            profileService.updatePassword(request);
+            profileUpdateService.updatePassword(request);
             LOGGER.info("Password updated successfully for email={}", requestorEmail);
 
             return ResponseEntity.ok("Password updated successfully.");
@@ -119,56 +121,6 @@ public class ProfileController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             LOGGER.error("Unexpected error updating password: {}", e.getMessage(), e);
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    /**
-     * Endpoint to retrieve a doctor's profile by email.
-     *
-     * @param request DTO containing the doctor's email
-     * @return ResponseEntity with the doctor's profile or error message
-     */
-    @PostMapping("/api/get-doctor-profile")
-    public ResponseEntity<Object> getDoctorProfile(@Valid @RequestBody UserLookupDto request) {
-        LOGGER.info("Received request to get DOCTOR profile for email={}", request.getEmail());
-        try {
-            ResponseEntity<Object> response = profileService.getUserProfile(request.getEmail(), Roles.DOCTOR);
-            LOGGER.info("Doctor profile retrieved successfully for email={}", request.getEmail());
-
-            return response;
-        } catch (SecurityException e) {
-            LOGGER.warn("Unauthorized attempt to get doctor profile for email={}", request.getEmail(), e);
-            return ResponseEntity.status(401).body(e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("Unexpected error retrieving doctor profile for email={}: {}", request.getEmail(), e.getMessage(), e);
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    /**
-     * Endpoint to retrieve a patient's profile by email.
-     * Access is restricted to users with employee roles.
-     *
-     * @param request DTO containing the patient's email and authentication token
-     * @return ResponseEntity with the patient's profile or error message
-     */
-    @PostMapping("/api/get-patient-profile")
-    public ResponseEntity<Object> getPatientProfile(@Valid @RequestBody UserLookupDto request) {
-        LOGGER.info("Received request to get PATIENT profile for email={}", request.getEmail());
-        try {
-            accessManager.enforceRoleBasedAccess(accessManager.getEmployeeGroup(), request.getToken());
-            LOGGER.debug("Role-based access check passed for email={}", request.getEmail());
-
-            ResponseEntity<Object> response = profileService.getUserProfile(request.getEmail(), Roles.PATIENT);
-            LOGGER.info("Patient profile retrieved successfully for email={}", request.getEmail());
-
-            return response;
-        } catch (SecurityException e) {
-            LOGGER.warn("Unauthorized attempt to get patient profile for email={}", request.getEmail(), e);
-            return ResponseEntity.status(401).body(e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("Unexpected error retrieving patient profile for email={}: {}", request.getEmail(), e.getMessage(), e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
