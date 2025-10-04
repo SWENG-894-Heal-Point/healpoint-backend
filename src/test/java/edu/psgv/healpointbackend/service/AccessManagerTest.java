@@ -1,5 +1,6 @@
 package edu.psgv.healpointbackend.service;
 
+import edu.psgv.healpointbackend.AbstractTestBase;
 import edu.psgv.healpointbackend.common.state.Datastore;
 import edu.psgv.healpointbackend.model.Role;
 import edu.psgv.healpointbackend.model.User;
@@ -10,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 
-class AccessManagerTest {
+class AccessManagerTest extends AbstractTestBase {
 
     private Datastore datastore;
     private AccessManager accessManager;
@@ -19,14 +20,6 @@ class AccessManagerTest {
     void setUp() {
         datastore = mock(Datastore.class);
         accessManager = new AccessManager(datastore);
-    }
-
-    private User mockUser(String email, String roleDescription) {
-        Role role = new Role();
-        String hashedPassword = "hashedPassword";
-        role.setDescription(roleDescription);
-        User user = new User(email, hashedPassword, role);
-        return user;
     }
 
     @Test

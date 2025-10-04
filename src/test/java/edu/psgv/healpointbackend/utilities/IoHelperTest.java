@@ -20,27 +20,15 @@ class IoHelperTest {
     }
 
     @Test
-    void isNullOrEmpty_nullInput_returnsTrue() {
+    void isNullOrEmpty_invalidInput_returnsTrue() {
         assertTrue(IoHelper.isNullOrEmpty(null));
-    }
-
-    @Test
-    void isNullOrEmpty_emptyString_returnsTrue() {
         assertTrue(IoHelper.isNullOrEmpty(""));
-    }
-
-    @Test
-    void isNullOrEmpty_whitespaceOnly_returnsTrue() {
         assertTrue(IoHelper.isNullOrEmpty("    "));
     }
 
     @Test
     void isNullOrEmpty_nonEmptyString_returnsFalse() {
         assertFalse(IoHelper.isNullOrEmpty("test"));
-    }
-
-    @Test
-    void isNullOrEmpty_stringWithWhitespaceAndText_returnsFalse() {
         assertFalse(IoHelper.isNullOrEmpty("  text  "));
     }
 }
