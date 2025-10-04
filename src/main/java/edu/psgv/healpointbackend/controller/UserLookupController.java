@@ -86,6 +86,13 @@ public class UserLookupController {
         }
     }
 
+    /**
+     * Endpoint to retrieve all patient profiles.
+     * Access is restricted to users with employee roles.
+     *
+     * @param token authentication token of the requester
+     * @return ResponseEntity with the list of all patient profiles or error message
+     */
     @GetMapping("/api/get-all-patients")
     public ResponseEntity<Object> getAllPatients(@RequestParam String token) {
         LOGGER.info("Received request to get all patients");
