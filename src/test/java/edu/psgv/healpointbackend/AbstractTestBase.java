@@ -8,6 +8,10 @@ import edu.psgv.healpointbackend.model.User;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public abstract class AbstractTestBase {
+    protected User mockUser(String email) {
+        return mockUser(email, "user");
+    }
+
     protected User mockUser(String email, String roleDescription) {
         Role role = new Role();
         String hashedPassword = "hashedPassword";

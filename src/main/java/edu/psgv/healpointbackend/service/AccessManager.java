@@ -22,6 +22,9 @@ public class AccessManager {
     private final Datastore datastore;
 
     @Getter
+    private final List<String> doctorOnlyGroup;
+
+    @Getter
     private final List<String> saGroup;
 
     @Getter
@@ -35,6 +38,7 @@ public class AccessManager {
      */
     public AccessManager(Datastore datastore) {
         this.datastore = datastore;
+        this.doctorOnlyGroup = List.of(Roles.DOCTOR);
         this.saGroup = List.of(Roles.ADMIN, Roles.SUPPORT_STAFF);
         this.employeeGroup = List.of(Roles.ADMIN, Roles.SUPPORT_STAFF, Roles.DOCTOR);
     }
@@ -47,7 +51,7 @@ public class AccessManager {
      * @param token       authentication token of the requestor
      * @throws SecurityException if access is denied
      */
-    public void enforceRoleBasedAccess(List<String> accessGroup, String token) {
+    public User enforceRoleBasedAccess(List<String> accessGroup, String token) {
         LOGGER.info("Enforcing role-based access for against allowedRoles={}", accessGroup);
 
         User requestor = datastore.getUserByToken(token);
@@ -55,6 +59,7 @@ public class AccessManager {
             LOGGER.warn("Access denied for user: {}", requestor != null ? requestor.getEmail() : "unknown");
             throw new SecurityException("Access denied: You do not have the required permissions.");
         }
+        return requestor;
     }
 
     /**
@@ -65,7 +70,7 @@ public class AccessManager {
      * @return the email of the authenticated user
      * @throws SecurityException if access is denied
      */
-    public String enforceOwnershipBasedAccess(String token) {
+    public User enforceOwnershipBasedAccess(String token) {
         LOGGER.info("Enforcing ownership-based access");
 
         User requestor = datastore.getUserByToken(token);
@@ -75,6 +80,6 @@ public class AccessManager {
         }
 
         LOGGER.info("Access granted for user: {}", requestor.getEmail());
-        return requestor.getEmail();
+        return requestor;
     }
 }

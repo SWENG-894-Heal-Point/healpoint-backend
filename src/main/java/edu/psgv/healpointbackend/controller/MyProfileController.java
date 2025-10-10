@@ -1,5 +1,6 @@
 package edu.psgv.healpointbackend.controller;
 
+import edu.psgv.healpointbackend.model.User;
 import edu.psgv.healpointbackend.dto.NewPasswordDto;
 import edu.psgv.healpointbackend.dto.TokenDto;
 import edu.psgv.healpointbackend.dto.UpdateProfileDto;
@@ -51,7 +52,8 @@ public class MyProfileController {
     public ResponseEntity<Object> getUserProfile(@Valid @RequestBody TokenDto request) {
         LOGGER.info("Received request to get my profile");
         try {
-            String requestorEmail = accessManager.enforceOwnershipBasedAccess(request.getToken());
+            User requestor = accessManager.enforceOwnershipBasedAccess(request.getToken());
+            String requestorEmail = requestor.getEmail();
             LOGGER.debug("Ownership verified. Fetching profile for email={}", requestorEmail);
 
             ResponseEntity<Object> response = profileGetService.getUserProfile(requestorEmail, null);
@@ -77,7 +79,8 @@ public class MyProfileController {
     public ResponseEntity<Object> updateUserProfile(@Valid @RequestBody UpdateProfileDto request) {
         LOGGER.info("Received request to update profile for email={}", request.getEmail());
         try {
-            String requestorEmail = accessManager.enforceOwnershipBasedAccess(request.getToken());
+            User requestor = accessManager.enforceOwnershipBasedAccess(request.getToken());
+            String requestorEmail = requestor.getEmail();
             LOGGER.debug("Ownership verified for email={}", requestorEmail);
 
             String emailAtPresent = profileUpdateService.updateUserProfile(request, requestorEmail);
@@ -106,7 +109,8 @@ public class MyProfileController {
     public ResponseEntity<String> updateMyPassword(@Valid @RequestBody NewPasswordDto request) {
         LOGGER.info("Received request to update password");
         try {
-            String requestorEmail = accessManager.enforceOwnershipBasedAccess(request.getToken());
+            User requestor = accessManager.enforceOwnershipBasedAccess(request.getToken());
+            String requestorEmail = requestor.getEmail();
             LOGGER.debug("Ownership verified for email={}", requestorEmail);
 
             profileUpdateService.updatePassword(request);
