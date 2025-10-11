@@ -1,5 +1,6 @@
 package edu.psgv.healpointbackend.controller;
 
+import edu.psgv.healpointbackend.dto.PrescriptionDto;
 import edu.psgv.healpointbackend.model.Prescription;
 import edu.psgv.healpointbackend.model.User;
 import edu.psgv.healpointbackend.service.AccessManager;
@@ -64,6 +65,38 @@ public class PrescriptionController {
             return ResponseEntity.status(401).body(e.getMessage());
         } catch (Exception e) {
             LOGGER.error("Error retrieving prescription for patientId={}: {}", patientId, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Creates or updates a prescription for a patient.
+     * <p>
+     * Only users with doctor role are authorized to perform this operation.
+     *
+     * @param prescriptionDto the prescription data transfer object containing prescription details and token
+     * @return the updated prescription object or an error response
+     */
+    @PostMapping("/api/create-or-update-prescription")
+    public ResponseEntity<Object> upsertPrescription(@Valid @RequestBody PrescriptionDto prescriptionDto) {
+        int patientId = prescriptionDto.getPatientId();
+        LOGGER.info("Received request to create/update prescription for patientId={}", patientId);
+        try {
+            accessManager.enforceRoleBasedAccess(accessManager.getDoctorOnlyGroup(), prescriptionDto.getToken());
+            LOGGER.info("Access granted. Processing prescription creation/update for patientId={}", patientId);
+
+            prescriptionService.upsertPrescription(prescriptionDto);
+            LOGGER.info("Prescription created/updated successfully for patientId={}", patientId);
+
+            Prescription prescription = prescriptionService.getPrescription(patientId);
+            LOGGER.info("Prescription retrieved successfully for patientId={}", patientId);
+
+            return ResponseEntity.ok(prescription);
+        } catch (SecurityException e) {
+            LOGGER.warn("Unauthorized attempt to create/update prescription for patientId={}. Reason: {}", patientId, e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error during create/update prescription for patientId={}: {}", patientId, e.getMessage(), e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
