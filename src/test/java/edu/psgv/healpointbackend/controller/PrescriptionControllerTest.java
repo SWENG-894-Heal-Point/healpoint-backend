@@ -18,8 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +35,7 @@ class PrescriptionControllerTest extends AbstractTestBase {
     private PrescriptionDto dto;
     private Prescription mockPrescription;
     private List<String> allowedRoles;
+    private List<String> doctorOnlyRole;
 
     @BeforeEach
     void setUp() {
@@ -44,6 +44,7 @@ class PrescriptionControllerTest extends AbstractTestBase {
         dto.setToken("validToken");
 
         mockPrescription = new Prescription();
+        doctorOnlyRole = List.of("Doctor");
         allowedRoles = List.of("Doctor", "Admin", "Support_Staff");
     }
 
@@ -94,5 +95,35 @@ class PrescriptionControllerTest extends AbstractTestBase {
         ResponseEntity<Object> exResponse = controller.getPrescription("okToken", 5);
         assertEquals(400, exResponse.getStatusCode().value());
         assertEquals("DB failure", exResponse.getBody());
+    }
+
+    @Test
+    void upsertPrescription_authorizedUser_returnsOkResponse() {
+        when(accessManager.getDoctorOnlyGroup()).thenReturn(doctorOnlyRole);
+        when(accessManager.enforceRoleBasedAccess(doctorOnlyRole, "validToken")).thenReturn(mockUser("ok@email.com"));
+        when(prescriptionService.getPrescription(1)).thenReturn(mockPrescription);
+
+        ResponseEntity<Object> response = controller.upsertPrescription(dto);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertSame(mockPrescription, response.getBody());
+        verify(prescriptionService).upsertPrescription(dto);
+    }
+
+    @Test
+    void upsertPrescription_securityException_returnsUnauthorized() {
+        when(accessManager.getDoctorOnlyGroup()).thenReturn(doctorOnlyRole);
+        when(accessManager.enforceRoleBasedAccess(doctorOnlyRole, "invalidToken"))
+                .thenThrow(new SecurityException("Unauthorized"));
+
+        PrescriptionDto dto2 = new PrescriptionDto();
+        dto2.setPatientId(1);
+        dto2.setToken("invalidToken");
+
+        ResponseEntity<Object> response = controller.upsertPrescription(dto2);
+
+        assertEquals(401, response.getStatusCode().value());
+        assertEquals("Unauthorized", response.getBody());
+        verify(prescriptionService, never()).upsertPrescription(any());
     }
 }

@@ -1,5 +1,6 @@
 package edu.psgv.healpointbackend.service;
 
+import edu.psgv.healpointbackend.dto.PrescriptionDto;
 import edu.psgv.healpointbackend.model.Patient;
 import edu.psgv.healpointbackend.model.Prescription;
 import edu.psgv.healpointbackend.model.PrescriptionItem;
@@ -7,7 +8,9 @@ import edu.psgv.healpointbackend.repository.PatientRepository;
 import edu.psgv.healpointbackend.repository.PrescriptionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -72,5 +75,47 @@ class PrescriptionServiceTest {
 
         assertTrue(ex.getMessage().contains("Patient with ID 999 not found"));
         verify(prescriptionRepository, never()).findByPatientId(anyInt());
+    }
+
+    @Test
+    void upsertPrescription_validInputNoExistingPrescription_createsNewPrescription() {
+        Patient mockPatient = Patient.builder().id(1).build();
+        mockPatient.setId(1);
+
+        PrescriptionItem item1 = new PrescriptionItem();
+        item1.setMedication("Aspirin");
+
+        PrescriptionDto dto = new PrescriptionDto();
+        dto.setPatientId(1);
+        dto.setInstruction("Take daily");
+        dto.setPrescriptionItems(List.of(item1));
+
+        when(patientRepository.findById(1)).thenReturn(Optional.of(mockPatient));
+        when(prescriptionRepository.findByPatientId(1)).thenReturn(Optional.empty());
+
+        prescriptionService.upsertPrescription(dto);
+
+        ArgumentCaptor<Prescription> captor = ArgumentCaptor.forClass(Prescription.class);
+        verify(prescriptionRepository).save(captor.capture());
+        Prescription saved = captor.getValue();
+
+        assertEquals("Take daily", saved.getInstruction());
+        assertEquals(1, saved.getPrescriptionItems().size());
+        assertEquals(mockPatient, saved.getPatient());
+    }
+
+    @Test
+    void upsertPrescription_invalidPatient_throwsException() {
+        PrescriptionDto dto = new PrescriptionDto();
+        dto.setPatientId(99);
+        dto.setPrescriptionItems(List.of());
+
+        when(patientRepository.findById(99)).thenReturn(Optional.empty());
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> prescriptionService.upsertPrescription(dto));
+
+        assertTrue(ex.getMessage().contains("Patient with ID 99 not found"));
+        verify(prescriptionRepository, never()).save(any());
     }
 }
