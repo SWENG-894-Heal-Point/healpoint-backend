@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -117,5 +118,91 @@ class PrescriptionServiceTest {
 
         assertTrue(ex.getMessage().contains("Patient with ID 99 not found"));
         verify(prescriptionRepository, never()).save(any());
+    }
+
+    @Test
+    void upsertPrescription_validInputExistingPrescription_updatePrescription() {
+        Patient mockPatient = Patient.builder().id(1).build();
+        mockPatient.setId(1);
+
+        PrescriptionItem item1 = new PrescriptionItem();
+        item1.setMedication("TestMed");
+
+        Prescription existing = new Prescription();
+        existing.setPatient(mockPatient);
+        existing.getPrescriptionItems().add(item1);
+
+        PrescriptionItem item2 = new PrescriptionItem();
+        item2.setMedication("NewTestMed");
+
+        PrescriptionDto dto = new PrescriptionDto();
+        dto.setPatientId(1);
+        dto.setInstruction("Take daily");
+        dto.setPrescriptionItems(List.of(item2));
+
+        when(patientRepository.findById(1)).thenReturn(Optional.of(mockPatient));
+        when(prescriptionRepository.findByPatientId(1)).thenReturn(Optional.of(existing));
+
+        prescriptionService.upsertPrescription(dto);
+
+        ArgumentCaptor<Prescription> captor = ArgumentCaptor.forClass(Prescription.class);
+        verify(prescriptionRepository).save(captor.capture());
+        Prescription saved = captor.getValue();
+
+        assertEquals("Take daily", saved.getInstruction());
+        assertEquals(1, saved.getPrescriptionItems().size());
+        assertEquals("NewTestMed", saved.getPrescriptionItems().get(0).getMedication());
+        assertEquals(mockPatient, saved.getPatient());
+    }
+
+    @Test
+    void upsertPrescription_duplicateMedications_throwsException() {
+        Patient mockPatient = Patient.builder().id(1).build();
+        PrescriptionItem oldItem = new PrescriptionItem();
+        oldItem.setMedication("OldTestMed");
+
+        Prescription existing = new Prescription();
+        existing.setPatient(mockPatient);
+        existing.setInstruction("Old instruction");
+        existing.getPrescriptionItems().add(oldItem);
+
+        PrescriptionItem item1 = new PrescriptionItem();
+        item1.setMedication("TestMed");
+        PrescriptionItem item2 = new PrescriptionItem();
+        item2.setMedication("Testmed ");
+
+        PrescriptionDto dto = new PrescriptionDto();
+        dto.setPatientId(1);
+        dto.setPrescriptionItems(List.of(item1, item2));
+
+        when(patientRepository.findById(1)).thenReturn(Optional.of(mockPatient));
+        when(prescriptionRepository.findByPatientId(1)).thenReturn(Optional.of(existing));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> prescriptionService.upsertPrescription(dto));
+
+        assertTrue(ex.getMessage().contains("Duplicate medications"));
+        verify(prescriptionRepository, never()).save(any());
+
+        assertEquals("Old instruction", existing.getInstruction());
+        assertEquals(1, existing.getPrescriptionItems().size());
+        assertEquals("OldTestMed", existing.getPrescriptionItems().get(0).getMedication());
+    }
+
+    @Test
+    void upsertPrescription_nullItemsList_savesWithoutError() {
+        Patient mockPatient = Patient.builder().id(1).build();
+        Prescription existing = new Prescription();
+
+        PrescriptionDto dto = new PrescriptionDto();
+        dto.setPatientId(1);
+        dto.setInstruction("No items");
+        dto.setPrescriptionItems(new ArrayList<>());
+
+        when(patientRepository.findById(1)).thenReturn(Optional.of(mockPatient));
+        when(prescriptionRepository.findByPatientId(1)).thenReturn(Optional.of(existing));
+
+        assertDoesNotThrow(() -> prescriptionService.upsertPrescription(dto));
+        verify(prescriptionRepository).save(existing);
     }
 }

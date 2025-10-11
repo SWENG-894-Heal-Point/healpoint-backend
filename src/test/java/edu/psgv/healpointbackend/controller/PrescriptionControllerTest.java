@@ -13,12 +13,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -125,5 +129,29 @@ class PrescriptionControllerTest extends AbstractTestBase {
         assertEquals(401, response.getStatusCode().value());
         assertEquals("Unauthorized", response.getBody());
         verify(prescriptionService, never()).upsertPrescription(any());
+    }
+
+    @Test
+    void upsertPrescription_genericException_returnsSaveFailed() {
+        when(accessManager.getDoctorOnlyGroup()).thenReturn(doctorOnlyRole);
+        when(accessManager.enforceRoleBasedAccess(doctorOnlyRole, "validToken")).thenReturn(mockUser("doctor@email.com"));
+        doThrow(new RuntimeException("Save failed")).when(prescriptionService).upsertPrescription(dto);
+
+        ResponseEntity<Object> response = controller.upsertPrescription(dto);
+
+        assertEquals(400, response.getStatusCode().value());
+        assertEquals("Save failed", response.getBody());
+    }
+
+    @Test
+    void upsertPrescription_missingRequiredFields_returnsBadRequest() throws Exception {
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+
+        String jsonPayload = "{\"instruction\": \"Take one daily\"}";
+
+        mockMvc.perform(post("/api/create-or-update-prescription")
+                        .contentType("application/json")
+                        .content(jsonPayload))
+                .andExpect(status().isBadRequest());
     }
 }
