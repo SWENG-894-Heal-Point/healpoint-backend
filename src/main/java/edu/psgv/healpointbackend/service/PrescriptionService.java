@@ -1,6 +1,7 @@
 package edu.psgv.healpointbackend.service;
 
 import edu.psgv.healpointbackend.dto.PrescriptionDto;
+import edu.psgv.healpointbackend.model.Notification;
 import edu.psgv.healpointbackend.model.Patient;
 import edu.psgv.healpointbackend.model.Prescription;
 import edu.psgv.healpointbackend.model.PrescriptionItem;
@@ -114,8 +115,42 @@ public class PrescriptionService {
         LOGGER.info("Prescription upsert operation completed for patientId={}", patientId);
     }
 
+    /**
+     * Requests a prescription refill for the specified patient and medications.
+     * <p>
+     * Validates patient existence and checks that all requested medications exist in the current prescription.
+     * Creates a notification for the doctor's group if successful.
+     * </p>
+     *
+     * @param patientId   the ID of the patient requesting the refill
+     * @param medications the list of medication names to be refilled
+     * @throws IllegalArgumentException if the patient does not exist or if any medication is not found in the existing prescription
+     */
     public void requestPrescriptionRefill(int patientId, List<String> medications) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        LOGGER.info("Starting refill operation for patientId={}", patientId);
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> {
+                    LOGGER.error("Patient with ID {} not found during refill operation", patientId);
+                    return new IllegalArgumentException("Patient with ID " + patientId + " not found");
+                });
+
+        Prescription prescription = prescriptionRepository.findByPatientId(patientId)
+                .orElseThrow(() -> {
+                    LOGGER.error("No existing prescription found for patientId={} during refill operation", patientId);
+                    return new IllegalArgumentException("No existing prescription found for patientId=" + patientId);
+                });
+
+        if (!allMedicationsExist(prescription, medications)) {
+            LOGGER.warn("One or more medications not found in existing prescription for patientId={}", patientId);
+            throw new IllegalArgumentException("One or more medications not found in existing prescription");
+        }
+
+        String message = String.format("%s, %s (ID: %d) requested a refill for %s",
+                patient.getLastName(), patient.getFirstName(), patient.getId(), String.join(", ", medications));
+        Notification notification = Notification.builder().userId(patientId).message(message).recipientGroup("Doctor").build();
+
+        notificationRepository.save(notification);
+        LOGGER.info("Refill request notification created for patientId={}", patientId);
     }
 
     /**
@@ -133,5 +168,28 @@ public class PrescriptionService {
                 .collect(Collectors.groupingBy(med -> med, Collectors.counting()));
 
         return medicationCounts.entrySet().stream().filter(e -> e.getValue() > 1).map(Map.Entry::getKey).toList();
+    }
+
+    /**
+     * Checks if all requested medications exist in the current prescription.
+     * <p>
+     * Comparison is case-insensitive and ignores leading/trailing whitespace.
+     * </p>
+     *
+     * @param prescription the existing Prescription object
+     * @param medications  the list of medication names to check
+     * @return true if all medications exist, false otherwise
+     */
+    private boolean allMedicationsExist(Prescription prescription, List<String> medications) {
+        List<String> existingMedications = prescription.getPrescriptionItems().stream()
+                .map(item -> item.getMedication().trim().toLowerCase())
+                .toList();
+
+        List<String> notFound = medications.stream()
+                .map(med -> med.trim().toLowerCase())
+                .filter(med -> !existingMedications.contains(med))
+                .toList();
+
+        return notFound.isEmpty();
     }
 }
