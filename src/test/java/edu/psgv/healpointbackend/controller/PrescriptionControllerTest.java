@@ -52,7 +52,7 @@ class PrescriptionControllerTest extends AbstractTestBase {
         allowedRoles = List.of("Doctor", "Admin", "Support_Staff");
     }
 
-    @Test
+    @Test // FR-12.4 UT-27
     void getPrescription_validAccess_returnsPrescription() {
         // Role-based access case
         when(accessManager.getEmployeeGroup()).thenReturn(allowedRoles);
@@ -66,7 +66,7 @@ class PrescriptionControllerTest extends AbstractTestBase {
         verify(accessManager).enforceRoleBasedAccess(allowedRoles, "validToken");
     }
 
-    @Test
+    @Test // FR-12.2 UT-18
     void getPrescription_patientIdZero_enforcesOwnershipAccess() {
         // Ownership-based access case
         User mockUser = mockUser(9, "test@email.com", "patient");
@@ -81,7 +81,7 @@ class PrescriptionControllerTest extends AbstractTestBase {
         verify(accessManager).enforceOwnershipBasedAccess("token123");
     }
 
-    @Test
+    @Test // FR-12.?
     void getPrescription_allExceptions_returnsProperErrorResponses() {
         when(accessManager.getEmployeeGroup()).thenReturn(allowedRoles);
 
@@ -101,7 +101,7 @@ class PrescriptionControllerTest extends AbstractTestBase {
         assertEquals("DB failure", exResponse.getBody());
     }
 
-    @Test
+    @Test // FR-9.2 UT-14
     void upsertPrescription_authorizedUser_returnsOkResponse() {
         when(accessManager.getDoctorOnlyGroup()).thenReturn(doctorOnlyRole);
         when(accessManager.enforceRoleBasedAccess(doctorOnlyRole, "validToken")).thenReturn(mockUser("ok@email.com"));
@@ -114,7 +114,7 @@ class PrescriptionControllerTest extends AbstractTestBase {
         verify(prescriptionService).upsertPrescription(dto);
     }
 
-    @Test
+    @Test // FR-9.4 UT-23
     void upsertPrescription_securityException_returnsUnauthorized() {
         when(accessManager.getDoctorOnlyGroup()).thenReturn(doctorOnlyRole);
         when(accessManager.enforceRoleBasedAccess(doctorOnlyRole, "invalidToken"))
@@ -131,7 +131,7 @@ class PrescriptionControllerTest extends AbstractTestBase {
         verify(prescriptionService, never()).upsertPrescription(any());
     }
 
-    @Test
+    @Test // FR-10.6
     void upsertPrescription_genericException_returnsSaveFailed() {
         when(accessManager.getDoctorOnlyGroup()).thenReturn(doctorOnlyRole);
         when(accessManager.enforceRoleBasedAccess(doctorOnlyRole, "validToken")).thenReturn(mockUser("doctor@email.com"));
@@ -143,7 +143,7 @@ class PrescriptionControllerTest extends AbstractTestBase {
         assertEquals("Save failed", response.getBody());
     }
 
-    @Test
+    @Test // FR-10.2 UT-16
     void upsertPrescription_missingRequiredFields_returnsBadRequest() throws Exception {
         MockMvc mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 

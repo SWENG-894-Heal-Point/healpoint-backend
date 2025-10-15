@@ -29,7 +29,7 @@ class PrescriptionServiceTest {
         prescriptionService = new PrescriptionService(prescriptionRepository, patientRepository);
     }
 
-    @Test
+    @Test // FR-12.5 UT-28
     void getPrescription_patientExists_returnsExistingPrescription() {
         Patient mockPatient = Patient.builder().id(1).build();
 
@@ -53,7 +53,7 @@ class PrescriptionServiceTest {
         assertEquals("TestMed", result.getPrescriptionItems().get(0).getMedication());
     }
 
-    @Test
+    @Test // FR-12.3 UT-19
     void getPrescription_patientExists_noExistingPrescription_returnsNewPrescription() {
         Patient mockPatient = Patient.builder().id(2).build();
 
@@ -68,7 +68,7 @@ class PrescriptionServiceTest {
         assertTrue(result.getPrescriptionItems().isEmpty());
     }
 
-    @Test
+    @Test // FR-12.6 UT-29
     void getPrescription_invalidPatient_throwsException() {
         when(patientRepository.findById(999)).thenReturn(Optional.empty());
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
@@ -78,7 +78,7 @@ class PrescriptionServiceTest {
         verify(prescriptionRepository, never()).findByPatientId(anyInt());
     }
 
-    @Test
+    @Test // FR-9.3 UT-15
     void upsertPrescription_validInputNoExistingPrescription_createsNewPrescription() {
         Patient mockPatient = Patient.builder().id(1).build();
         mockPatient.setId(1);
@@ -105,7 +105,7 @@ class PrescriptionServiceTest {
         assertEquals(mockPatient, saved.getPatient());
     }
 
-    @Test
+    @Test // FR-9.5 UT-24
     void upsertPrescription_invalidPatient_throwsException() {
         PrescriptionDto dto = new PrescriptionDto();
         dto.setPatientId(99);
@@ -120,7 +120,7 @@ class PrescriptionServiceTest {
         verify(prescriptionRepository, never()).save(any());
     }
 
-    @Test
+    @Test // FR-10.4 UT-25
     void upsertPrescription_validInputExistingPrescription_updatePrescription() {
         Patient mockPatient = Patient.builder().id(1).build();
         mockPatient.setId(1);
@@ -155,7 +155,7 @@ class PrescriptionServiceTest {
         assertEquals(mockPatient, saved.getPatient());
     }
 
-    @Test
+    @Test // FR-10.3 UT-17
     void upsertPrescription_duplicateMedications_throwsException() {
         Patient mockPatient = Patient.builder().id(1).build();
         PrescriptionItem oldItem = new PrescriptionItem();
@@ -189,7 +189,7 @@ class PrescriptionServiceTest {
         assertEquals("OldTestMed", existing.getPrescriptionItems().get(0).getMedication());
     }
 
-    @Test
+    @Test // FR-10.5 UT-26
     void upsertPrescription_nullItemsList_savesWithoutError() {
         Patient mockPatient = Patient.builder().id(1).build();
         Prescription existing = new Prescription();

@@ -148,7 +148,7 @@ class UserLookupControllerTest extends AbstractTestBase {
         assertEquals("Unexpected failure", response.getBody());
     }
 
-    @Test
+    @Test // FR-16.5
     void getAllPatients_validDoctorToken_returnsOkResponse() {
         // Arrange
         PatientProfile p1 = mockPatientProfile("John", "john@example.com");
@@ -170,7 +170,7 @@ class UserLookupControllerTest extends AbstractTestBase {
         verify(profileGetService).getAllPatients();
     }
 
-    @Test
+    @Test // FR-16.6
     void getAllPatients_invalidOrErrorCases_returnsProperErrorResponses() {
         String token = "invalidToken";
 
