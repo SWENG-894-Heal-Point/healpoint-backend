@@ -4,6 +4,7 @@ import edu.psgv.healpointbackend.dto.PrescriptionDto;
 import edu.psgv.healpointbackend.model.Patient;
 import edu.psgv.healpointbackend.model.Prescription;
 import edu.psgv.healpointbackend.model.PrescriptionItem;
+import edu.psgv.healpointbackend.repository.NotificationRepository;
 import edu.psgv.healpointbackend.repository.PatientRepository;
 import edu.psgv.healpointbackend.repository.PrescriptionRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,13 +21,15 @@ import static org.mockito.Mockito.*;
 class PrescriptionServiceTest {
     private PrescriptionRepository prescriptionRepository;
     private PatientRepository patientRepository;
+    private NotificationRepository notificationRepository;
     private PrescriptionService prescriptionService;
 
     @BeforeEach
     void setUp() {
         prescriptionRepository = mock(PrescriptionRepository.class);
         patientRepository = mock(PatientRepository.class);
-        prescriptionService = new PrescriptionService(prescriptionRepository, patientRepository);
+        notificationRepository = mock(NotificationRepository.class);
+        prescriptionService = new PrescriptionService(prescriptionRepository, patientRepository, notificationRepository);
     }
 
     @Test // FR-12.5 UT-28
@@ -204,5 +207,56 @@ class PrescriptionServiceTest {
 
         assertDoesNotThrow(() -> prescriptionService.upsertPrescription(dto));
         verify(prescriptionRepository).save(existing);
+    }
+
+    @Test // FR-13.3 UT-20
+    void requestPrescriptionRefill_validAndInvalidInput_respondsAppropriately() {
+        // Setup mock patient and existing prescription
+        Patient mockPatient = Patient.builder().id(1).firstName("John").lastName("Doe").build();
+
+        Prescription mockPrescription = new Prescription();
+        mockPrescription.setPatient(mockPatient);
+
+        PrescriptionItem item = new PrescriptionItem();
+        item.setMedication("MedA");
+        mockPrescription.getPrescriptionItems().add(item);
+
+        // Valid case
+        when(patientRepository.findById(1)).thenReturn(Optional.of(mockPatient));
+        when(prescriptionRepository.findByPatientId(1)).thenReturn(Optional.of(mockPrescription));
+        when(notificationRepository.save(any())).thenReturn(null);
+
+        prescriptionService.requestPrescriptionRefill(1, List.of("MedA"));
+
+        verify(notificationRepository).save(argThat(n ->
+                n.getMessage().contains("Doe, John") &&
+                        n.getMessage().contains("MedA") &&
+                        n.getRecipientGroup().equals("Doctor")));
+
+        // Invalid case - medication not in prescription
+        IllegalArgumentException e3 = assertThrows(IllegalArgumentException.class,
+                () -> prescriptionService.requestPrescriptionRefill(1, List.of("MedB")));
+        assertEquals("One or more medications not found in existing prescription", e3.getMessage());
+    }
+
+    @Test
+    void requestPrescriptionRefill_invalidPatient_throwsException() {
+        when(patientRepository.findById(999)).thenReturn(Optional.empty());
+
+        IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
+                () -> prescriptionService.requestPrescriptionRefill(999, List.of("MedA")));
+        assertEquals("Patient with ID 999 not found", e1.getMessage());
+    }
+
+    @Test // FR-13.5 UT-31
+    void requestPrescriptionRefill_noExistingPrescription_throwsException() {
+        Patient mockPatient = Patient.builder().id(1).build();
+
+        when(patientRepository.findById(1)).thenReturn(Optional.of(mockPatient));
+        when(prescriptionRepository.findByPatientId(1)).thenReturn(Optional.empty());
+
+        IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
+                () -> prescriptionService.requestPrescriptionRefill(1, List.of("MedA")));
+        assertEquals("No existing prescription found for patientId=1", e2.getMessage());
     }
 }

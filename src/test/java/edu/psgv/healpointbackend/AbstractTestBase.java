@@ -1,11 +1,14 @@
 package edu.psgv.healpointbackend;
 
 import edu.psgv.healpointbackend.dto.NewPasswordDto;
+import edu.psgv.healpointbackend.dto.RefillMedicationsDto;
 import edu.psgv.healpointbackend.model.Patient;
 import edu.psgv.healpointbackend.model.PatientProfile;
 import edu.psgv.healpointbackend.model.Role;
 import edu.psgv.healpointbackend.model.User;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.List;
 
 public abstract class AbstractTestBase {
     protected User mockUser(String email) {
@@ -47,6 +50,13 @@ public abstract class AbstractTestBase {
         dto.setOldPassword(oldPassword);
         dto.setNewPassword(newPassword);
         dto.setConfirmNewPassword(confirmPassword);
+        return dto;
+    }
+
+    protected RefillMedicationsDto mockRefillMedicationsDto(String token, List<String> medications) {
+        RefillMedicationsDto dto = new RefillMedicationsDto();
+        dto.setToken(token);
+        dto.setMedications(medications);
         return dto;
     }
 }

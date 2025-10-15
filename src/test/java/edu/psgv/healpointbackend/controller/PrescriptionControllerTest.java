@@ -2,6 +2,7 @@ package edu.psgv.healpointbackend.controller;
 
 import edu.psgv.healpointbackend.AbstractTestBase;
 import edu.psgv.healpointbackend.dto.PrescriptionDto;
+import edu.psgv.healpointbackend.dto.RefillMedicationsDto;
 import edu.psgv.healpointbackend.model.Prescription;
 import edu.psgv.healpointbackend.model.User;
 import edu.psgv.healpointbackend.service.AccessManager;
@@ -154,4 +155,48 @@ class PrescriptionControllerTest extends AbstractTestBase {
                         .content(jsonPayload))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test // FR-13.5 UT-30
+    void requestPrescriptionRefill_ownerAndNonOwner_respondsAppropriately() {
+        // Owner (patient) case
+        User owner = mockUser(1, "patient@email.com", "patient");
+        List<String> meds = List.of("MedA", "MedB");
+        RefillMedicationsDto dto = mockRefillMedicationsDto("validToken", meds);
+
+        when(accessManager.enforceOwnershipBasedAccess("validToken")).thenReturn(owner);
+        ResponseEntity<Object> okResponse = controller.requestPrescriptionRefill(dto);
+
+        assertEquals(200, okResponse.getStatusCode().value());
+        assertEquals("Refill request submitted successfully.", okResponse.getBody());
+        verify(prescriptionService).requestPrescriptionRefill(1, meds);
+
+        // Non-owner (invalid token) case
+        RefillMedicationsDto badDto = mockRefillMedicationsDto("badToken", meds);
+
+        when(accessManager.enforceOwnershipBasedAccess("badToken")).thenThrow(new SecurityException("Unauthorized"));
+        ResponseEntity<Object> unauthorizedResponse = controller.requestPrescriptionRefill(badDto);
+
+        assertEquals(401, unauthorizedResponse.getStatusCode().value());
+        assertEquals("Unauthorized", unauthorizedResponse.getBody());
+        verify(prescriptionService, times(1)).requestPrescriptionRefill(anyInt(), anyList()); // Only called once above
+    }
+
+    @Test
+    void requestPrescriptionRefill_generalException_returnsBadRequest() {
+        User mockUser = mockUser(5, "patient@email.com", "patient");
+        List<String> meds = List.of("MedA", "MedB");
+        RefillMedicationsDto dto = mockRefillMedicationsDto("validToken", meds);
+
+        when(accessManager.enforceOwnershipBasedAccess("validToken")).thenReturn(mockUser);
+        doThrow(new RuntimeException("Database error")).when(prescriptionService)
+                .requestPrescriptionRefill(anyInt(), anyList());
+
+        ResponseEntity<Object> response = controller.requestPrescriptionRefill(dto);
+
+        assertEquals(400, response.getStatusCode().value());
+        assertEquals("Database error", response.getBody());
+        verify(accessManager).enforceOwnershipBasedAccess("validToken");
+        verify(prescriptionService).requestPrescriptionRefill(5, dto.getMedications());
+    }
+
 }
