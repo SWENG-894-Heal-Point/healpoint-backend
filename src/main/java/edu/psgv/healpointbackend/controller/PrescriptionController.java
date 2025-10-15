@@ -1,6 +1,7 @@
 package edu.psgv.healpointbackend.controller;
 
 import edu.psgv.healpointbackend.dto.PrescriptionDto;
+import edu.psgv.healpointbackend.dto.RefillMedicationsDto;
 import edu.psgv.healpointbackend.model.Prescription;
 import edu.psgv.healpointbackend.model.User;
 import edu.psgv.healpointbackend.service.AccessManager;
@@ -99,5 +100,10 @@ public class PrescriptionController {
             LOGGER.error("Error during create/update prescription for patientId={}: {}", patientId, e.getMessage(), e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PostMapping("/api/request-prescription-refill")
+    public ResponseEntity<Object> requestPrescriptionRefill(@Valid @RequestBody RefillMedicationsDto refillMedicationsDto) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 }

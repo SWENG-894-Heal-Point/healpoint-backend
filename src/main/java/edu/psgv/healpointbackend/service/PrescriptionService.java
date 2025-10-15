@@ -4,6 +4,7 @@ import edu.psgv.healpointbackend.dto.PrescriptionDto;
 import edu.psgv.healpointbackend.model.Patient;
 import edu.psgv.healpointbackend.model.Prescription;
 import edu.psgv.healpointbackend.model.PrescriptionItem;
+import edu.psgv.healpointbackend.repository.NotificationRepository;
 import edu.psgv.healpointbackend.repository.PatientRepository;
 import edu.psgv.healpointbackend.repository.PrescriptionRepository;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
 public class PrescriptionService {
     private final PrescriptionRepository prescriptionRepository;
     private final PatientRepository patientRepository;
+    private final NotificationRepository notificationRepository;
+
 
     /**
      * Constructs a new PrescriptionService with required repositories.
@@ -34,9 +37,10 @@ public class PrescriptionService {
      * @param prescriptionRepository the repository for prescription operations
      * @param patientRepository      the repository for patient operations
      */
-    public PrescriptionService(PrescriptionRepository prescriptionRepository, PatientRepository patientRepository) {
+    public PrescriptionService(PrescriptionRepository prescriptionRepository, PatientRepository patientRepository, NotificationRepository notificationRepository) {
         this.prescriptionRepository = prescriptionRepository;
         this.patientRepository = patientRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     /**
@@ -108,6 +112,10 @@ public class PrescriptionService {
 
         prescriptionRepository.save(prescription);
         LOGGER.info("Prescription upsert operation completed for patientId={}", patientId);
+    }
+
+    public void requestPrescriptionRefill(int patientId, List<String> medications) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     /**
