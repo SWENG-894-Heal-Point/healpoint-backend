@@ -15,7 +15,7 @@ import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
 
 /**
  * REST controller for managing patient prescriptions.
- * Provides endpoints to retrieve and upsert (create or update) prescriptions.
+ * Provides endpoints to retrieve, refill, and upsert (create or update) prescriptions.
  *
  * @author Mahfuzur Rahman
  */
@@ -102,8 +102,31 @@ public class PrescriptionController {
         }
     }
 
+    /**
+     * Requests a prescription refill for the authenticated patient.
+     *
+     * @param refillMedicationsDto the DTO containing the token and list of medications to refill
+     * @return a success message or an error response
+     */
     @PostMapping("/api/request-prescription-refill")
     public ResponseEntity<Object> requestPrescriptionRefill(@Valid @RequestBody RefillMedicationsDto refillMedicationsDto) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        LOGGER.info("Received request to refill prescription");
+        int patientId = -1;
+        try {
+            User requestor = accessManager.enforceOwnershipBasedAccess(refillMedicationsDto.getToken());
+            patientId = requestor.getId();
+            LOGGER.info("Access granted. Processing prescription refill request for patientId={}", patientId);
+
+            prescriptionService.requestPrescriptionRefill(patientId, refillMedicationsDto.getMedications());
+            LOGGER.info("Prescription refill request processed successfully for patientId={}", patientId);
+
+            return ResponseEntity.ok("Refill request submitted successfully.");
+        } catch (SecurityException e) {
+            LOGGER.warn("Unauthorized attempt to request prescription refill. Reason: {}", e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error during prescription refill request for patientId={}: {}", patientId, e.getMessage(), e);
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
