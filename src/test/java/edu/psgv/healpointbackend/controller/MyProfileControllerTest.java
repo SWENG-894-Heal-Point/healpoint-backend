@@ -43,7 +43,7 @@ class MyProfileControllerTest extends AbstractTestBase {
         TokenDto request = new TokenDto();
         request.setToken("token");
 
-        when(accessManager.enforceOwnershipBasedAccess("token")).thenReturn("patient@example.com");
+        when(accessManager.enforceOwnershipBasedAccess("token")).thenReturn(mockUser("patient@example.com"));
         when(profileGetService.getUserProfile("patient@example.com", null))
                 .thenReturn(ResponseEntity.ok("PatientProfile"));
 
@@ -71,7 +71,7 @@ class MyProfileControllerTest extends AbstractTestBase {
         TokenDto request = new TokenDto();
         request.setToken("token");
 
-        when(accessManager.enforceOwnershipBasedAccess("token")).thenReturn("user@example.com");
+        when(accessManager.enforceOwnershipBasedAccess("token")).thenReturn(mockUser("user@example.com"));
         when(profileGetService.getUserProfile("user@example.com", null)).thenThrow(new RuntimeException("DB failure"));
 
         ResponseEntity<Object> response = controller.getUserProfile(request);
@@ -117,7 +117,7 @@ class MyProfileControllerTest extends AbstractTestBase {
         request.setEmail("doctor@example.com");
         request.setPhone("987-654-3210");
 
-        when(accessManager.enforceOwnershipBasedAccess("token")).thenReturn("doctor@example.com");
+        when(accessManager.enforceOwnershipBasedAccess("token")).thenReturn(mockUser("doctor@example.com"));
         when(profileUpdateService.updateUserProfile(request, "doctor@example.com")).thenReturn("doctor@example.com");
         when(profileGetService.getUserProfile("doctor@example.com", null))
                 .thenReturn(ResponseEntity.ok("UpdatedDoctorProfile"));
@@ -148,7 +148,7 @@ class MyProfileControllerTest extends AbstractTestBase {
         request.setToken("token");
         request.setEmail("user@example.com");
 
-        when(accessManager.enforceOwnershipBasedAccess("token")).thenReturn("user@example.com");
+        when(accessManager.enforceOwnershipBasedAccess("token")).thenReturn(mockUser("user@example.com"));
         when(profileUpdateService.updateUserProfile(request, "user@example.com")).thenThrow(new RuntimeException("Unexpected error"));
 
         ResponseEntity<Object> response = controller.updateUserProfile(request);
@@ -161,7 +161,7 @@ class MyProfileControllerTest extends AbstractTestBase {
     void updateMyPassword_validInput_returnsOkResponse() {
         // Arrange
         NewPasswordDto dto = mockPasswordDto("token", "oldPass", "newTestPass", "newTestPass");
-        when(accessManager.enforceOwnershipBasedAccess("token")).thenReturn("test@example.com");
+        when(accessManager.enforceOwnershipBasedAccess("token")).thenReturn(mockUser("test@example.com"));
 
         // Act
         ResponseEntity<String> response = controller.updateMyPassword(dto);
@@ -185,13 +185,14 @@ class MyProfileControllerTest extends AbstractTestBase {
         assertEquals("Unauthorized", res1.getBody());
 
         // --- Case 2: IllegalArgumentException (bad request) ---
-        when(accessManager.enforceOwnershipBasedAccess("token2")).thenReturn("test@example.com");
+        when(accessManager.enforceOwnershipBasedAccess("token2")).thenReturn(mockUser("test@example.com"));
         doThrow(new IllegalArgumentException("Mismatch")).when(profileUpdateService).updatePassword(dto2);
         ResponseEntity<String> res2 = controller.updateMyPassword(dto2);
         assertEquals(400, res2.getStatusCode().value());
         assertEquals("Mismatch", res2.getBody());
 
         // --- Case 3: Generic Exception (unexpected error) ---
+        when(accessManager.enforceOwnershipBasedAccess("token3")).thenReturn(mockUser("test3@example.com"));
         doThrow(new RuntimeException("Unexpected")).when(profileUpdateService).updatePassword(dto3);
         ResponseEntity<String> res3 = controller.updateMyPassword(dto3);
         assertEquals(400, res3.getStatusCode().value());
