@@ -4,6 +4,7 @@ import edu.psgv.healpointbackend.AbstractTestBase;
 import edu.psgv.healpointbackend.dto.UserLookupDto;
 import edu.psgv.healpointbackend.model.PatientProfile;
 import edu.psgv.healpointbackend.model.Roles;
+import edu.psgv.healpointbackend.model.User;
 import edu.psgv.healpointbackend.service.AccessManager;
 import edu.psgv.healpointbackend.service.ProfileGetService;
 import org.junit.jupiter.api.Test;
@@ -91,7 +92,7 @@ class UserLookupControllerTest extends AbstractTestBase {
         request.setEmail("doctor@example.com");
         request.setToken("token");
 
-        doNothing().when(accessManager).enforceRoleBasedAccess(anyList(), eq("token"));
+        when(accessManager.enforceRoleBasedAccess(anyList(), eq("token"))).thenReturn(mock(User.class));
         when(profileGetService.getUserProfile("doctor@example.com", Roles.PATIENT))
                 .thenReturn(ResponseEntity.ok("DoctorProfile"));
 
@@ -122,7 +123,7 @@ class UserLookupControllerTest extends AbstractTestBase {
         request.setEmail("doctor@example.com");
         request.setToken("token");
 
-        doNothing().when(accessManager).enforceRoleBasedAccess(anyList(), eq("token"));
+        when(accessManager.enforceRoleBasedAccess(anyList(), eq("token"))).thenReturn(mock(User.class));
         when(profileGetService.getUserProfile("doctor@example.com", Roles.PATIENT))
                 .thenReturn(ResponseEntity.status(401).body("No PATIENT account associated with this email address."));
 
@@ -138,7 +139,7 @@ class UserLookupControllerTest extends AbstractTestBase {
         request.setEmail("patient@example.com");
         request.setToken("token");
 
-        doNothing().when(accessManager).enforceRoleBasedAccess(anyList(), eq("token"));
+        when(accessManager.enforceRoleBasedAccess(anyList(), eq("token"))).thenReturn(mock(User.class));
         when(profileGetService.getUserProfile("patient@example.com", Roles.PATIENT)).thenThrow(new RuntimeException("Unexpected failure"));
 
         ResponseEntity<Object> response = controller.getPatientProfile(request);
@@ -147,7 +148,7 @@ class UserLookupControllerTest extends AbstractTestBase {
         assertEquals("Unexpected failure", response.getBody());
     }
 
-    @Test
+    @Test // FR-16.5
     void getAllPatients_validDoctorToken_returnsOkResponse() {
         // Arrange
         PatientProfile p1 = mockPatientProfile("John", "john@example.com");
@@ -156,8 +157,8 @@ class UserLookupControllerTest extends AbstractTestBase {
         String token = "validToken";
         ArrayList<PatientProfile> mockProfiles = new ArrayList<>(List.of(p1, p2));
         when(profileGetService.getAllPatients()).thenReturn(mockProfiles);
-        doNothing().when(accessManager).enforceRoleBasedAccess(any(), eq(token));
         when(accessManager.getEmployeeGroup()).thenReturn(List.of("doctor"));
+        when(accessManager.enforceRoleBasedAccess(anyList(), eq(token))).thenReturn(mock(User.class));
 
         // Act
         ResponseEntity<Object> response = controller.getAllPatients(token);
@@ -169,7 +170,7 @@ class UserLookupControllerTest extends AbstractTestBase {
         verify(profileGetService).getAllPatients();
     }
 
-    @Test
+    @Test // FR-16.6
     void getAllPatients_invalidOrErrorCases_returnsProperErrorResponses() {
         String token = "invalidToken";
 

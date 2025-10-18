@@ -2,7 +2,6 @@ package edu.psgv.healpointbackend.service;
 
 import edu.psgv.healpointbackend.AbstractTestBase;
 import edu.psgv.healpointbackend.common.state.Datastore;
-import edu.psgv.healpointbackend.model.Role;
 import edu.psgv.healpointbackend.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,8 +57,8 @@ class AccessManagerTest extends AbstractTestBase {
         User patient = mockUser("patient@example.com", "PATIENT");
         when(datastore.getUserByToken("token-patient")).thenReturn(patient);
 
-        String email = accessManager.enforceOwnershipBasedAccess("token-patient");
-        assertEquals("patient@example.com", email);
+        User testUser = accessManager.enforceOwnershipBasedAccess("token-patient");
+        assertEquals("patient@example.com", testUser.getEmail());
     }
 
     @Test

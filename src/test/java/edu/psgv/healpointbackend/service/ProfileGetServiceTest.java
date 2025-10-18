@@ -126,7 +126,7 @@ class ProfileGetServiceTest extends AbstractTestBase {
         assertEquals("DB failure", response.getBody());
     }
 
-    @Test
+    @Test // FR-16.3 UT-21
     void getAllPatients_variousInputs_expectedOutputs() {
         // Arrange (covers multiple paths)
         Patient p1 = mockPatient(1, "John", "Doe");
@@ -153,7 +153,7 @@ class ProfileGetServiceTest extends AbstractTestBase {
         verify(userRepository, times(3)).findById(anyInt());
     }
 
-    @Test
+    @Test // FR-16.4 UT-22
     void getAllPatients_emptyRepository_returnsEmptyList() {
         // Arrange
         when(patientRepository.findAll()).thenReturn(Collections.emptyList());

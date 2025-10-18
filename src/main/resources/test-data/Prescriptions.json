@@ -1,0 +1,46 @@
+[
+  {
+    "patientId": 6,
+    "instruction": "Take with food. Stay hydrated.",
+    "prescriptionItems": [
+      {
+        "itemNumber": 1,
+        "medication": "Amoxicillin",
+        "dosage": 40,
+        "frequency": 3,
+        "duration": 30,
+        "fillsLeft": 2
+      },
+      {
+        "itemNumber": 2,
+        "medication": "Ibuprofen",
+        "dosage": 200,
+        "frequency": 2,
+        "duration": 14,
+        "fillsLeft": 1
+      }
+    ]
+  },
+  {
+    "patientId": 7,
+    "instruction": "Take Lisinopril after dinner.",
+    "prescriptionItems": [
+      {
+        "itemNumber": 1,
+        "medication": "Omeprazole",
+        "dosage": 50,
+        "frequency": 3,
+        "duration": 90,
+        "fillsLeft": 3
+      },
+      {
+        "itemNumber": 2,
+        "medication": "Lisinopril",
+        "dosage": 120,
+        "frequency": 1,
+        "duration": 30,
+        "fillsLeft": 1
+      }
+    ]
+  }
+]

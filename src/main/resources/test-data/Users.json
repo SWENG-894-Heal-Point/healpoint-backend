@@ -61,5 +61,14 @@
     "IsActive": true,
     "CreatedAt": "2025-09-22 20:55:59.710",
     "UpdatedAt": null
+  },
+  {
+    "UserID": 8,
+    "Email": "support.staff@healpoint.com",
+    "Password": "$2a$10$9ktMJIcUFlVwozAV9tNyseIRG.LYE0qxPwONggnp11hsxivoPdjM.",
+    "RoleID": 3,
+    "IsActive": true,
+    "CreatedAt": "2025-09-22 20:55:59.710",
+    "UpdatedAt": null
   }
 ]

@@ -59,6 +59,8 @@ public class TestDataSeeder implements CommandLineRunner {
     private final EmployeeAccountRepository employeeAccountRepository;
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
+    private final PrescriptionRepository prescriptionRepository;
+    private final TestPrescriptionLoader prescriptionLoader;
     private final ObjectMapper objectMapper;
 
     /**
@@ -72,12 +74,14 @@ public class TestDataSeeder implements CommandLineRunner {
      * @param objectMapper              the ObjectMapper for JSON processing
      */
     public TestDataSeeder(RoleRepository roleRepository, UserRepository userRepository, EmployeeAccountRepository employeeAccountRepository,
-                          DoctorRepository doctorRepository, PatientRepository patientRepository, ObjectMapper objectMapper) {
+                          DoctorRepository doctorRepository, PatientRepository patientRepository, PrescriptionRepository prescriptionRepository, ObjectMapper objectMapper) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.employeeAccountRepository = employeeAccountRepository;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
+        this.prescriptionRepository = prescriptionRepository;
+        this.prescriptionLoader = new TestPrescriptionLoader(prescriptionRepository, patientRepository, objectMapper);
         this.objectMapper = objectMapper;
     }
 
@@ -98,9 +102,11 @@ public class TestDataSeeder implements CommandLineRunner {
         loadEmployeeAccounts();
         loadDoctors();
         loadPatients();
+        prescriptionLoader.loadPrescriptions();
 
-        // print all roles and users
+        // print all roles, employee accounts, and users
         roleRepository.findAll().forEach(role -> LOGGER.info("{} Role: {}", role.getId(), role.getDescription()));
+        employeeAccountRepository.findAll().forEach(account -> LOGGER.info("{} Employee Email: {}", account.getId(), account.getEmail()));
         userRepository.findAll().forEach(user -> LOGGER.info("{} User: {}, Role: {}", user.getId(), user.getEmail(), user.getRole().getDescription()));
     }
 
