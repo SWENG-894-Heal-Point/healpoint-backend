@@ -1,6 +1,7 @@
 package edu.psgv.healpointbackend.controller;
 
 import edu.psgv.healpointbackend.dto.UserLookupDto;
+import edu.psgv.healpointbackend.model.DoctorProfile;
 import edu.psgv.healpointbackend.model.PatientProfile;
 import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.service.AccessManager;
@@ -55,6 +56,24 @@ public class UserLookupController {
             return ResponseEntity.status(401).body(e.getMessage());
         } catch (Exception e) {
             LOGGER.error("Unexpected error retrieving doctor profile for email={}: {}", request.getEmail(), e.getMessage(), e);
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Endpoint to retrieve all doctor profiles.
+     *
+     * @return ResponseEntity with the list of all doctor profiles or error message
+     */
+    @GetMapping("/api/get-all-doctors")
+    public ResponseEntity<Object> getAllDoctors() {
+        LOGGER.info("Received request to get all doctors");
+        try {
+            ArrayList<DoctorProfile> profiles = profileGetService.getAllDoctors();
+            LOGGER.info("All doctors retrieved successfully");
+            return ResponseEntity.ok(profiles);
+        } catch (Exception e) {
+            LOGGER.error("Unexpected error retrieving all doctors: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
