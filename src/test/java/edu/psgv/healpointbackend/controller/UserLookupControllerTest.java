@@ -2,6 +2,7 @@ package edu.psgv.healpointbackend.controller;
 
 import edu.psgv.healpointbackend.AbstractTestBase;
 import edu.psgv.healpointbackend.dto.UserLookupDto;
+import edu.psgv.healpointbackend.model.DoctorProfile;
 import edu.psgv.healpointbackend.model.PatientProfile;
 import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.model.User;
@@ -191,5 +192,37 @@ class UserLookupControllerTest extends AbstractTestBase {
         ResponseEntity<Object> responseGeneric = controller.getAllPatients("errorToken");
         assertEquals(400, responseGeneric.getStatusCode().value());
         assertEquals("Unexpected error", responseGeneric.getBody());
+    }
+
+    @Test
+    void getAllDoctors_returnsOkResponse() {
+        // Arrange
+        DoctorProfile d1 = mockDoctorProfile("Dr. Smith", "smith@example.com");
+        DoctorProfile d2 = mockDoctorProfile("Dr. Jones", "jones@example.com");
+
+        ArrayList<DoctorProfile> mockProfiles = new ArrayList<>(List.of(d1, d2));
+        when(profileGetService.getAllDoctors()).thenReturn(mockProfiles);
+
+        // Act
+        ResponseEntity<Object> response = controller.getAllDoctors();
+
+        // Assert
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(mockProfiles, response.getBody());
+        verify(profileGetService).getAllDoctors();
+    }
+
+    @Test
+    void getAllDoctors_serviceThrowsException_returns400() {
+        // Arrange
+        when(profileGetService.getAllDoctors()).thenThrow(new RuntimeException("Database error"));
+
+        // Act
+        ResponseEntity<Object> response = controller.getAllDoctors();
+
+        // Assert
+        assertEquals(400, response.getStatusCode().value());
+        assertEquals("Database error", response.getBody());
+        verify(profileGetService).getAllDoctors();
     }
 }

@@ -166,4 +166,44 @@ class ProfileGetServiceTest extends AbstractTestBase {
         verify(patientRepository).findAll();
         verifyNoInteractions(userRepository);
     }
+
+    @Test
+    void getAllDoctors_nonEmptyRepository_returnsExpectedDoctorProfiles() {
+        // Arrange
+        Doctor d1 = mockDoctor(1, "Dr. John", "Doe");
+        Doctor d2 = mockDoctor(2, "Dr. Alice", "Smith");
+        Doctor d3 = mockDoctor(3, "Dr. Jane", "Roe");
+
+        when(doctorRepository.findAll()).thenReturn(List.of(d1, d2, d3));
+
+        // Case 1: valid user for d1 and d2
+        when(userRepository.findById(1)).thenReturn(Optional.of(mockUser(1, "john@healpoint.com", "Doctor")));
+        when(userRepository.findById(2)).thenReturn(Optional.of(mockUser(2, "alice@healpoint.com", "Doctor")));
+        // Case 2: no user found for d3
+        when(userRepository.findById(3)).thenReturn(Optional.empty());
+
+        // Act
+        ArrayList<DoctorProfile> result = profileGetService.getAllDoctors();
+
+        // Assert
+        assertEquals(2, result.size());
+        assertTrue(result.stream().anyMatch(d -> d.getEmail().equals("john@healpoint.com")));
+        assertTrue(result.stream().anyMatch(d -> d.getEmail().equals("alice@healpoint.com")));
+        verify(doctorRepository).findAll();
+        verify(userRepository, times(3)).findById(anyInt());
+    }
+
+    @Test
+    void getAllDoctors_emptyRepository_returnsEmptyList() {
+        // Arrange
+        when(doctorRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // Act
+        ArrayList<DoctorProfile> result = profileGetService.getAllDoctors();
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verify(doctorRepository).findAll();
+        verifyNoInteractions(userRepository);
+    }
 }
