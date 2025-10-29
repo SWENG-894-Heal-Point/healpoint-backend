@@ -108,4 +108,21 @@ public class ProfileGetService {
         LOGGER.info("Total patient profiles fetched: {}", profiles.size());
         return profiles;
     }
+
+    /**
+     * Retrieves all doctor profiles in the system.
+     *
+     * @return list of DoctorProfile objects
+     */
+    public ArrayList<DoctorProfile> getAllDoctors() {
+        LOGGER.info("Fetching all doctor profiles");
+        ArrayList<DoctorProfile> profiles = new ArrayList<>();
+        Iterable<Doctor> doctors = doctorRepository.findAll();
+        for (Doctor doctor : doctors) {
+            Optional<User> userOpt = userRepository.findById(doctor.getId());
+            userOpt.ifPresent(user -> profiles.add(new DoctorProfile(doctor, user.getEmail(), user.getRole().getDescription())));
+        }
+        LOGGER.info("Total doctor profiles fetched: {}", profiles.size());
+        return profiles;
+    }
 }
