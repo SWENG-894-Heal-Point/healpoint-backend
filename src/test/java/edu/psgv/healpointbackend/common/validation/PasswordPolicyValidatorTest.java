@@ -4,7 +4,8 @@ import jakarta.validation.ConstraintValidatorContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 class PasswordPolicyValidatorTest {
@@ -24,34 +25,12 @@ class PasswordPolicyValidatorTest {
     }
 
     @Test
-    void isValid_shortPassword_failsPolicy() {
-        assertFalse(validator.isValid("Ab1@", context));
+    void isValid_invalidPassword_failsPolicy() {
+        assertFalse(validator.isValid("Ab1@", context));        // too short
+        assertFalse(validator.isValid("abcdefg1@", context));   // missing uppercase
+        assertFalse(validator.isValid("ABCDEFG1@", context));   // missing lowercase
+        assertFalse(validator.isValid("Abcdefg@", context));    // missing digit
+        assertFalse(validator.isValid("Abcdef12", context));    // missing special character
+        assertFalse(validator.isValid(null, context));          // null case
     }
-
-    @Test
-    void isValid_passwordMissingUppercase_failsPolicy() {
-        assertFalse(validator.isValid("abcdefg1@", context));
-    }
-
-    @Test
-    void isValid_passwordMissingLowercase_failsPolicy() {
-        assertFalse(validator.isValid("ABCDEFG1@", context));
-    }
-
-    @Test
-    void isValid_passwordMissingDigit_failsPolicy() {
-        assertFalse(validator.isValid("Abcdefg@", context));
-    }
-
-    @Test
-    void isValid_asswordMissingSpecialChar_failsPolicy() {
-        assertFalse(validator.isValid("Abcdef12", context));
-    }
-
-    @Test
-    void isValid_nullPassword_failsPolicy() {
-        assertFalse(validator.isValid(null, context));
-    }
-
-
 }
