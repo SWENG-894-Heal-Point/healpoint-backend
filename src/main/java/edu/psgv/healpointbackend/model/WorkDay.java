@@ -26,9 +26,9 @@ public class WorkDay {
 
     // Custom constructors
     @Builder
-    public WorkDay(Integer id, Integer doctorId, String dayName, LocalTime startTime, LocalTime endTime, Integer slotCount) {
+    public WorkDay(Integer id, Doctor doctor, String dayName, LocalTime startTime, LocalTime endTime, Integer slotCount) {
         this.id = id;
-        this.doctorId = doctorId;
+        this.doctor = doctor;
         this.dayName = dayName;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -40,8 +40,9 @@ public class WorkDay {
     @Column(name = "WorkDayID")
     private Integer id;
 
-    @Column(name = "DoctorID", nullable = false)
-    private Integer doctorId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "DoctorID", nullable = false)
+    private Doctor doctor;
 
     @Column(name = "DayName", nullable = false, length = 20)
     private String dayName;

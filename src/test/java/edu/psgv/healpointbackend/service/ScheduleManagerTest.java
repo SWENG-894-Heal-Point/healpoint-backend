@@ -1,6 +1,7 @@
 package edu.psgv.healpointbackend.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import edu.psgv.healpointbackend.model.Doctor;
 import edu.psgv.healpointbackend.model.WorkDay;
 import edu.psgv.healpointbackend.repository.DoctorRepository;
 import edu.psgv.healpointbackend.repository.WorkDayRepository;
@@ -59,7 +60,7 @@ class ScheduleManagerTest {
 
     @Test
     void getValidWorkDays_mixedInputs_filtersInvalidOnes() throws Exception {
-        var method = ScheduleManager.class.getDeclaredMethod("getValidWorkDays", Integer.class, List.class);
+        var method = ScheduleManager.class.getDeclaredMethod("getValidWorkDays", Doctor.class, List.class);
         method.setAccessible(true);
 
         List<WorkDay> input = List.of(
@@ -69,12 +70,15 @@ class ScheduleManagerTest {
                 createWorkDay("Wed", LocalTime.of(9, 0), null)                    // invalid
         );
 
+        Doctor doctor = mock(Doctor.class);
+        when(doctor.getId()).thenReturn(1);
+
         @SuppressWarnings("unchecked")
-        List<WorkDay> result = (List<WorkDay>) method.invoke(scheduleManager, 1, input);
+        List<WorkDay> result = (List<WorkDay>) method.invoke(scheduleManager, doctor, input);
 
         assertEquals(1, result.size());
         assertEquals("MON", result.get(0).getDayName());
-        assertEquals(1, result.get(0).getDoctorId());
+        assertEquals(1, result.get(0).getDoctor().getId());
     }
 
 
@@ -104,7 +108,7 @@ class ScheduleManagerTest {
 
     @Test
     void upsertWorkDays_existingAndNewWorkDays_savesCorrectly() throws JsonProcessingException {
-        when(doctorRepository.existsById(1)).thenReturn(true);
+        when(doctorRepository.findById(1)).thenReturn(Optional.of(mock(Doctor.class)));
 
         WorkDay existingDay = createWorkDay("MON", LocalTime.of(9, 0), LocalTime.of(17, 0));
         WorkDay newDay = createWorkDay("TUE", LocalTime.of(10, 0), LocalTime.of(18, 0));

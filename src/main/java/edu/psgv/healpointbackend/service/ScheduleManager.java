@@ -1,6 +1,7 @@
 package edu.psgv.healpointbackend.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import edu.psgv.healpointbackend.model.Doctor;
 import edu.psgv.healpointbackend.model.Slot;
 import edu.psgv.healpointbackend.model.WorkDay;
 import edu.psgv.healpointbackend.repository.DoctorRepository;
@@ -54,12 +55,13 @@ public class ScheduleManager {
      */
     public void upsertWorkDays(Integer doctorId, List<WorkDay> workDays) throws JsonProcessingException {
         LOGGER.info("Starting upsertWorkDays for doctorId: {}", doctorId);
-        if (!doctorRepository.existsById(doctorId)) {
+        Doctor doctor = doctorRepository.findById(doctorId).orElse(null);
+        if (doctor == null) {
             LOGGER.error("Doctor with ID {} does not exist.", doctorId);
             throw new IllegalArgumentException("Invalid doctor ID: " + doctorId);
         }
 
-        List<WorkDay> validWorkDays = getValidWorkDays(doctorId, workDays);
+        List<WorkDay> validWorkDays = getValidWorkDays(doctor, workDays);
         LOGGER.info("Validated work days count for doctor {}: {}", doctorId, validWorkDays.size());
         if (validWorkDays.isEmpty()) {
             LOGGER.warn("No valid work days provided for doctor ID {}.", doctorId);
@@ -88,12 +90,12 @@ public class ScheduleManager {
     /**
      * Validates and filters the provided work days.
      *
-     * @param doctorId the ID of the doctor
+     * @param doctor the doctor associated with the work days
      * @param workDays the list of work days to validate
      * @return a list of valid work days
      * @throws JsonProcessingException if there is an error processing JSON data
      */
-    private List<WorkDay> getValidWorkDays(Integer doctorId, List<WorkDay> workDays) throws JsonProcessingException {
+    private List<WorkDay> getValidWorkDays(Doctor doctor, List<WorkDay> workDays) throws JsonProcessingException {
         List<WorkDay> validWorkDays = new ArrayList<>();
 
         for (WorkDay wd : workDays) {
@@ -102,7 +104,7 @@ public class ScheduleManager {
 
             if (validDayName != null && wd.getStartTime() != null && wd.getEndTime() != null) {
                 WorkDay validWd = WorkDay.builder()
-                        .doctorId(doctorId)
+                        .doctor(doctor)
                         .dayName(validDayName)
                         .startTime(wd.getStartTime())
                         .endTime(wd.getEndTime())

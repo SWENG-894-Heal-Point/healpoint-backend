@@ -80,6 +80,6 @@ public class WorkDayDataSeeder implements CommandLineRunner {
         // Log all loaded work days
         LOGGER.info("*** Loaded Work Days ***");
         workDayRepository.findAll().forEach(wd -> LOGGER.info("DoctorID: {}, {} {} to {}, SlotCount: {}",
-                wd.getDoctorId(), wd.getDayName(), wd.getStartTime(), wd.getEndTime(), wd.getSlotCount()));
+                wd.getDoctor().getId(), wd.getDayName(), wd.getStartTime(), wd.getEndTime(), wd.getSlotCount()));
     }
 }
