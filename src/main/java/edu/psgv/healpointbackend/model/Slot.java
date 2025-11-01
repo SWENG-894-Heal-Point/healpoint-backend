@@ -7,6 +7,11 @@ import lombok.Setter;
 import java.time.LocalTime;
 
 
+/**
+ * Represents a time slot with a start and end time.
+ *
+ * @author Mahfuzur Rahman
+ */
 @Getter
 @Setter
 public class Slot {

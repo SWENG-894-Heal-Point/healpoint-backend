@@ -11,8 +11,25 @@ import java.util.List;
 
 import static edu.psgv.healpointbackend.HealpointBackendApplication.CONFIG_READER;
 
+
+/**
+ * Utility class for generating time slots within a given shift.
+ * <p>
+ * Generates slots based on configured duration and includes logic for breaks.
+ * </p>
+ *
+ * @author Mahfuzur Rahman
+ */
 @Component
 public class SlotGenerator {
+    /**
+     * Generates time slots for a given shift.
+     *
+     * @param shiftStart the start time of the shift
+     * @param shiftEnd   the end time of the shift
+     * @return a list of generated slots
+     * @throws JsonProcessingException if there is an error processing JSON data
+     */
     public List<Slot> generateSlots(LocalTime shiftStart, LocalTime shiftEnd) throws JsonProcessingException {
         List<Slot> slots = new ArrayList<>();
 
@@ -35,6 +52,13 @@ public class SlotGenerator {
         return slots;
     }
 
+    /**
+     * Checks if the shift duration qualifies for a break.
+     *
+     * @param shiftStart the start time of the shift
+     * @param shiftEnd   the end time of the shift
+     * @return true if the shift duration meets or exceeds the minimum required hours for a break, false otherwise
+     */
     private boolean isEligibleForBreak(LocalTime shiftStart, LocalTime shiftEnd) {
         int minWorkHoursForBreak = Integer.parseInt(String.valueOf(CONFIG_READER.get("minWorkHoursForBreak")));
         long workedHours = Duration.between(shiftStart, shiftEnd).toHours();

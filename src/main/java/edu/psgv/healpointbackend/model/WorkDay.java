@@ -8,6 +8,12 @@ import lombok.Setter;
 import java.time.LocalTime;
 
 
+/**
+ * Represents a work day for a doctor in the system.
+ * Maps to the "WorkDay" table in the "dbo" schema.
+ *
+ * @author Mahfuzur Rahman
+ */
 @Getter
 @Setter
 @Entity
