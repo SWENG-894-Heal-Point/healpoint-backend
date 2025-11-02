@@ -1,6 +1,7 @@
 package edu.psgv.healpointbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,9 +21,13 @@ public class Slot {
         this.endTime = endTime;
     }
 
+    protected Slot() {}
+
     @JsonFormat(pattern = "HH:mm")
+    @Column(name = "StartTime", nullable = false)
     private LocalTime startTime;
 
     @JsonFormat(pattern = "HH:mm")
+    @Column(name = "EndTime", nullable = false)
     private LocalTime endTime;
 }
