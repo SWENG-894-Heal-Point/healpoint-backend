@@ -2,6 +2,7 @@ package edu.psgv.healpointbackend.common.state;
 
 import edu.psgv.healpointbackend.AbstractTestBase;
 import edu.psgv.healpointbackend.model.Role;
+import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,14 +14,15 @@ class DatastoreTest extends AbstractTestBase {
     private Datastore datastore;
     private Role role;
     private User existingUser;
+    private final String TEST_ROLE = "TEST_USER";
 
     @BeforeEach
     void setUp() {
         role = new Role();
         role.setId(1);
-        role.setDescription("Test User");
+        role.setDescription(TEST_ROLE);
 
-        existingUser = mockUser(99, "existing.user@email.com", "Test User");
+        existingUser = mockUser("existing.user@email.com", TEST_ROLE, 99);
         existingUser.setPassword("Test@123");
         existingUser.setToken("JwtToken123");
 
@@ -64,7 +66,7 @@ class DatastoreTest extends AbstractTestBase {
 
     @Test
     void updateUser_existingUser_userUpdated() {
-        User user = mockUser(1, "user@test.com", "patient");
+        User user = mockUser("user@test.com", Roles.PATIENT, 1);
         user.setToken("JwtToken123");
         datastore.addUser(user);
 

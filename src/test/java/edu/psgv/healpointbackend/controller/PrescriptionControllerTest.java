@@ -4,6 +4,7 @@ import edu.psgv.healpointbackend.AbstractTestBase;
 import edu.psgv.healpointbackend.dto.PrescriptionDto;
 import edu.psgv.healpointbackend.dto.RefillMedicationsDto;
 import edu.psgv.healpointbackend.model.Prescription;
+import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.model.User;
 import edu.psgv.healpointbackend.service.AccessManager;
 import edu.psgv.healpointbackend.service.PrescriptionService;
@@ -70,7 +71,7 @@ class PrescriptionControllerTest extends AbstractTestBase {
     @Test // FR-12.2 UT-18
     void getPrescription_patientIdZero_enforcesOwnershipAccess() {
         // Ownership-based access case
-        User mockUser = mockUser(9, "test@email.com", "patient");
+        User mockUser = mockUser("test@email.com", Roles.PATIENT, 9);
 
         when(accessManager.enforceOwnershipBasedAccess("token123")).thenReturn(mockUser);
         when(prescriptionService.getPrescription(9)).thenReturn(mockPrescription);
@@ -159,7 +160,7 @@ class PrescriptionControllerTest extends AbstractTestBase {
     @Test // FR-13.5 UT-30
     void requestPrescriptionRefill_ownerAndNonOwner_respondsAppropriately() {
         // Owner (patient) case
-        User owner = mockUser(1, "patient@email.com", "patient");
+        User owner = mockUser("patient@email.com", Roles.PATIENT, 1);
         List<String> meds = List.of("MedA", "MedB");
         RefillMedicationsDto dto = mockRefillMedicationsDto("validToken", meds);
 
@@ -183,7 +184,7 @@ class PrescriptionControllerTest extends AbstractTestBase {
 
     @Test
     void requestPrescriptionRefill_generalException_returnsBadRequest() {
-        User mockUser = mockUser(5, "patient@email.com", "patient");
+        User mockUser = mockUser("patient@email.com", Roles.PATIENT, 5);
         List<String> meds = List.of("MedA", "MedB");
         RefillMedicationsDto dto = mockRefillMedicationsDto("validToken", meds);
 

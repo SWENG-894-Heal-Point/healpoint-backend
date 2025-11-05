@@ -19,7 +19,7 @@ public abstract class AbstractTestBase {
         return new User(email, hashedPassword, role);
     }
 
-    protected User mockUser(Integer id, String email, String roleDesc) {
+    protected User mockUser(String email, String roleDesc, Integer id) {
         Role role = new Role();
         String hashedPassword = "hashedPassword";
         role.setDescription(roleDesc);

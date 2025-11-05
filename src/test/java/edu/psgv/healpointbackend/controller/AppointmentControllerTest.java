@@ -2,6 +2,7 @@ package edu.psgv.healpointbackend.controller;
 
 import edu.psgv.healpointbackend.AbstractTestBase;
 import edu.psgv.healpointbackend.dto.ScheduleAppointmentDto;
+import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.model.User;
 import edu.psgv.healpointbackend.service.AccessManager;
 import edu.psgv.healpointbackend.service.AppointmentService;
@@ -25,6 +26,8 @@ class AppointmentControllerTest extends AbstractTestBase {
     @InjectMocks
     private AppointmentController controller;
 
+    private final String TEST_EMAIL = "user@test.com";
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -32,7 +35,7 @@ class AppointmentControllerTest extends AbstractTestBase {
 
     @Test
     void scheduleAppointment_validPatientToken_returnsOk() {
-        User user = mockUser(10, null, "patient");
+        User user = mockUser(TEST_EMAIL, Roles.PATIENT, 10);
         ScheduleAppointmentDto dto = new ScheduleAppointmentDto();
         dto.setToken("valid-token");
 
@@ -62,7 +65,7 @@ class AppointmentControllerTest extends AbstractTestBase {
 
         // --- IllegalArgumentException → 400 ---
         dto.setToken("good-token");
-        User user = mockUser(20, null, "patient");
+        User user = mockUser(TEST_EMAIL, Roles.PATIENT, 20);
         when(accessManager.enforceOwnershipBasedAccess("good-token")).thenReturn(user);
         doThrow(new IllegalArgumentException("Invalid data")).when(appointmentService).scheduleAppointment(dto);
 
