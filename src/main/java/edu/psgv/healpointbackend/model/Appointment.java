@@ -32,7 +32,7 @@ public class Appointment extends Slot {
         this.patient = patient;
         this.appointmentDate = appointmentDate;
         this.reason = reason;
-        this.status = "SCHEDULED";
+        this.status = AppointmentStatus.SCHEDULED;
     }
 
     @Id
