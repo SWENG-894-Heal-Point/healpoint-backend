@@ -2,6 +2,7 @@ package edu.psgv.healpointbackend.controller;
 
 import edu.psgv.healpointbackend.AbstractTestBase;
 import edu.psgv.healpointbackend.dto.ScheduleAppointmentDto;
+import edu.psgv.healpointbackend.model.Appointment;
 import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.model.User;
 import edu.psgv.healpointbackend.service.AccessManager;
@@ -12,6 +13,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -31,6 +35,46 @@ class AppointmentControllerTest extends AbstractTestBase {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void getMyAppointments_validToken_returnsAppointments() {
+        String token = "validToken";
+        User user = mockUser(TEST_EMAIL, Roles.PATIENT, 10);
+
+        List<Appointment> expectedAppointments = Arrays.asList(mock(Appointment.class), mock(Appointment.class), mock(Appointment.class));
+
+        when(accessManager.enforceOwnershipBasedAccess(token)).thenReturn(user);
+        when(appointmentService.getAllAppointmentsByUser(user)).thenReturn(expectedAppointments);
+
+        ResponseEntity<Object> response = controller.getMyAppointments(token);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(expectedAppointments, response.getBody());
+    }
+
+    @Test
+    void getMyAppointments_exceptions_handledProperly() {
+        // Case 1: SecurityException
+        String badToken = "badToken";
+        when(accessManager.enforceOwnershipBasedAccess(badToken)).thenThrow(new SecurityException("Invalid token"));
+
+        ResponseEntity<Object> unauthorizedResponse = controller.getMyAppointments(badToken);
+
+        assertEquals(401, unauthorizedResponse.getStatusCode().value());
+        assertEquals("Invalid token", unauthorizedResponse.getBody());
+
+        // Case 2: Unexpected Exception
+        String validToken = "validToken";
+        User mockUser = mockUser(TEST_EMAIL, Roles.DOCTOR, 5);
+
+        when(accessManager.enforceOwnershipBasedAccess(validToken)).thenReturn(mockUser);
+        when(appointmentService.getAllAppointmentsByUser(mockUser)).thenThrow(new RuntimeException("DB down"));
+
+        ResponseEntity<Object> errorResponse = controller.getMyAppointments(validToken);
+
+        assertEquals(500, errorResponse.getStatusCode().value());
+        assertEquals("An unexpected error occurred.", errorResponse.getBody());
     }
 
     @Test

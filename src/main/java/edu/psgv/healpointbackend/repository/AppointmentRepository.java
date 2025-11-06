@@ -40,4 +40,20 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
      * @return a list of Appointment entities matching the criteria
      */
     List<Appointment> findByDoctorIdAndAppointmentDate(Integer doctorId, LocalDate appointmentDate);
+
+    /**
+     * Finds appointments by doctor ID.
+     *
+     * @param doctorId the ID of the doctor
+     * @return a list of Appointment entities for the specified doctor
+     */
+    List<Appointment> findByDoctorId(Integer doctorId);
+
+    /**
+     * Finds appointments by patient ID.
+     *
+     * @param patientId the ID of the patient
+     * @return a list of Appointment entities for the specified patient
+     */
+    List<Appointment> findByPatientId(Integer patientId);
 }

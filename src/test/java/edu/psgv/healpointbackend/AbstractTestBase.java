@@ -5,6 +5,8 @@ import edu.psgv.healpointbackend.dto.RefillMedicationsDto;
 import edu.psgv.healpointbackend.model.*;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public abstract class AbstractTestBase {
@@ -64,5 +66,15 @@ public abstract class AbstractTestBase {
         dto.setToken(token);
         dto.setMedications(medications);
         return dto;
+    }
+
+    protected Appointment mockAppointment(Doctor doctor, Patient patient, String date, String startTime, String status) {
+        LocalDate appointmentDate = LocalDate.parse(date);
+        LocalTime start = LocalTime.parse(startTime);
+        LocalTime end = start.plusMinutes(30);
+
+        Appointment appointment = new Appointment(doctor, patient, appointmentDate, start, end, "Test Reason");
+        appointment.setStatus(status);
+        return appointment;
     }
 }

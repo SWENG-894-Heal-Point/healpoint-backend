@@ -3,10 +3,7 @@ package edu.psgv.healpointbackend.service;
 import edu.psgv.healpointbackend.AbstractTestBase;
 import edu.psgv.healpointbackend.dto.AvailableAppointmentSlotsDto;
 import edu.psgv.healpointbackend.dto.ScheduleAppointmentDto;
-import edu.psgv.healpointbackend.model.Appointment;
-import edu.psgv.healpointbackend.model.Doctor;
-import edu.psgv.healpointbackend.model.Patient;
-import edu.psgv.healpointbackend.model.Slot;
+import edu.psgv.healpointbackend.model.*;
 import edu.psgv.healpointbackend.repository.AppointmentRepository;
 import edu.psgv.healpointbackend.repository.DoctorRepository;
 import edu.psgv.healpointbackend.repository.PatientRepository;
@@ -15,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -23,8 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class AppointmentServiceTest extends AbstractTestBase {
@@ -37,8 +32,6 @@ class AppointmentServiceTest extends AbstractTestBase {
     private AppointmentRepository appointmentRepository;
     @Mock
     private AppointmentAvailabilityService appointmentAvailabilityService;
-    @Mock
-    private Logger logger;
 
     @InjectMocks
     private AppointmentService appointmentService;
@@ -66,6 +59,37 @@ class AppointmentServiceTest extends AbstractTestBase {
         dto.setAppointmentDate(date);
         dto.setAppointmentTime(startTime);
         dto.setReason("Consultation");
+    }
+
+    @Test
+    void getAllAppointmentsByUser_nonEmptyRepository_returnsExpectedAppointments() {
+        User mockPatientUser = mockUser("patient@example.com", Roles.PATIENT, 2);
+
+        Appointment a1 = mockAppointment(doctor, patient, "2025-07-05", "09:00", AppointmentStatus.COMPLETED);
+        Appointment a2 = mockAppointment(doctor, patient, "2025-08-12", "11:30", AppointmentStatus.COMPLETED);
+        Appointment a3 = mockAppointment(doctor, patient, "2025-12-22", "14:30", AppointmentStatus.SCHEDULED);
+
+        when(appointmentRepository.findByPatientId(2)).thenReturn(List.of(a1, a2, a3));
+
+        List<Appointment> appointments = appointmentService.getAllAppointmentsByUser(mockPatientUser);
+
+        assertTrue(appointments.size() == 3);
+        assertTrue(appointments.contains(a1));
+        assertTrue(appointments.contains(a2));
+        assertTrue(appointments.contains(a3));
+        verify(appointmentRepository).findByPatientId(2);
+    }
+
+    @Test
+    void getAllAppointmentsByUser_emptyRepository_returnsEmptyList() {
+        User mockDoctorUser = mockUser("doctor@example.com", Roles.DOCTOR, 37);
+
+        when(appointmentRepository.findByDoctorId(37)).thenReturn(new ArrayList<>());
+
+        List<Appointment> appointments = assertDoesNotThrow(() -> appointmentService.getAllAppointmentsByUser(mockDoctorUser));
+
+        assertTrue(appointments.isEmpty());
+        verify(appointmentRepository).findByDoctorId(37);
     }
 
     @Test
