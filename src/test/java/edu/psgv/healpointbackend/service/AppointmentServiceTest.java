@@ -46,7 +46,7 @@ class AppointmentServiceTest extends AbstractTestBase {
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
-        date = LocalDate.of(2025, 11, 5);
+        date = LocalDate.now().plusDays(1);
         startTime = LocalTime.of(9, 0);
         slot = new Slot(startTime, startTime.plusMinutes(30));
 
@@ -126,7 +126,6 @@ class AppointmentServiceTest extends AbstractTestBase {
 
     @Test
     void scheduleAppointment_invalidSlot_throwsException() {
-        // Arrange
         when(patientRepository.findById(2)).thenReturn(Optional.of(patient));
         when(doctorRepository.findById(1)).thenReturn(Optional.of(doctor));
         when(doctorRepository.findById(11)).thenReturn(Optional.of(doctor));
@@ -137,7 +136,6 @@ class AppointmentServiceTest extends AbstractTestBase {
                 List.of(new Slot(LocalTime.of(10, 0), LocalTime.of(10, 30))));
         when(appointmentAvailabilityService.createAvailableSlotsDto(date, 11)).thenReturn(slotsDto);
 
-        // Act & Assert
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> appointmentService.scheduleAppointment(dto));
         assertTrue(ex.getMessage().contains("does not have any available slots"));
