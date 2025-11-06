@@ -1,15 +1,16 @@
 package edu.psgv.healpointbackend.controller;
 
 import edu.psgv.healpointbackend.dto.ScheduleAppointmentDto;
+import edu.psgv.healpointbackend.model.Appointment;
 import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.model.User;
 import edu.psgv.healpointbackend.service.AccessManager;
 import edu.psgv.healpointbackend.service.AppointmentService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
 
@@ -33,6 +34,30 @@ public class AppointmentController {
     public AppointmentController(AppointmentService appointmentService, AccessManager accessManager) {
         this.appointmentService = appointmentService;
         this.accessManager = accessManager;
+    }
+
+    /**
+     * Retrieves all appointments for the authenticated user.
+     *
+     * @param token the authentication token
+     * @return ResponseEntity containing the list of appointments or an error message
+     */
+    @GetMapping("/api/get-my-appointments")
+    public ResponseEntity<Object> getMyAppointments(@Valid @RequestParam String token) {
+        try {
+            User requestor = accessManager.enforceOwnershipBasedAccess(token);
+            LOGGER.info("Fetching appointments for user ID: {}, role: {}", requestor.getId(), requestor.getRole().getDescription());
+
+            List<Appointment> appointments = appointmentService.getAllAppointmentsByUser(requestor);
+            LOGGER.info("Successfully retrieved {} appointments for user ID: {}", appointments.size(), requestor.getId());
+            return ResponseEntity.ok(appointments);
+        } catch (SecurityException e) {
+            LOGGER.warn("Unauthorized access attempt with token: {}", token, e);
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Unexpected error retrieving appointments: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("An unexpected error occurred.");
+        }
     }
 
     /**
