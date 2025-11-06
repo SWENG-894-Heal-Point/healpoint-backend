@@ -1,5 +1,6 @@
 package edu.psgv.healpointbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +20,7 @@ import java.time.LocalTime;
 @Setter
 @Entity
 @Table(name = "Appointment", schema = "dbo")
-public class Appointment extends Slot {
+public class Appointment {
     // Required by JPA
     protected Appointment() {
         super();
@@ -27,10 +28,11 @@ public class Appointment extends Slot {
 
     // Custom constructors
     public Appointment(Doctor doctor, Patient patient, LocalDate appointmentDate, LocalTime startTime, LocalTime endTime, String reason) {
-        super(startTime, endTime);
         this.doctor = doctor;
         this.patient = patient;
         this.appointmentDate = appointmentDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.reason = reason;
         this.status = AppointmentStatus.SCHEDULED;
     }
@@ -50,6 +52,14 @@ public class Appointment extends Slot {
 
     @Column(name = "AppointmentDate", nullable = false)
     private LocalDate appointmentDate;
+
+    @JsonFormat(pattern = "HH:mm")
+    @Column(name = "StartTime", nullable = false)
+    private LocalTime startTime;
+
+    @JsonFormat(pattern = "HH:mm")
+    @Column(name = "EndTime", nullable = false)
+    private LocalTime endTime;
 
     @Column(name = "Reason", nullable = false, length = 50)
     private String reason;

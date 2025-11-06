@@ -24,10 +24,8 @@ public class Slot {
     protected Slot() {}
 
     @JsonFormat(pattern = "HH:mm")
-    @Column(name = "StartTime", nullable = false)
     private LocalTime startTime;
 
     @JsonFormat(pattern = "HH:mm")
-    @Column(name = "EndTime", nullable = false)
     private LocalTime endTime;
 }
