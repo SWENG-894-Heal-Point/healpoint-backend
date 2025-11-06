@@ -2,16 +2,14 @@ package edu.psgv.healpointbackend.service;
 
 import edu.psgv.healpointbackend.dto.AvailableAppointmentSlotsDto;
 import edu.psgv.healpointbackend.dto.ScheduleAppointmentDto;
-import edu.psgv.healpointbackend.model.Appointment;
-import edu.psgv.healpointbackend.model.Doctor;
-import edu.psgv.healpointbackend.model.Patient;
-import edu.psgv.healpointbackend.model.Slot;
+import edu.psgv.healpointbackend.model.*;
 import edu.psgv.healpointbackend.repository.AppointmentRepository;
 import edu.psgv.healpointbackend.repository.DoctorRepository;
 import edu.psgv.healpointbackend.repository.PatientRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
 
@@ -44,6 +42,25 @@ public class AppointmentService {
         this.doctorRepository = doctorRepository;
         this.appointmentRepository = appointmentRepository;
         this.appointmentAvailabilityService = appointmentAvailabilityService;
+    }
+
+    /**
+     * Retrieves all appointments associated with the given user.
+     *
+     * @param user the user whose appointments are to be fetched
+     * @return a list of Appointment objects
+     */
+    public List<Appointment> getAllAppointmentsByUser(User user) {
+        int userId = user.getId();
+        String role = user.getRole().getDescription();
+        LOGGER.info("Fetching all appointments for user ID: {}, role: {}", userId, role);
+
+        List<Appointment> appointments = role.equalsIgnoreCase(Roles.PATIENT)
+                ? appointmentRepository.findByPatientId(userId)
+                : appointmentRepository.findByDoctorId(userId);
+
+        LOGGER.debug("Found {} appointments for user ID: {}", appointments.size(), userId);
+        return appointments;
     }
 
     /**
