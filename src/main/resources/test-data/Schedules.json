@@ -1,0 +1,47 @@
+[
+  {
+    "doctorId": 2,
+    "availability": [
+      {
+        "dayName": "Mon",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      },
+      {
+        "dayName": "Tue",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      },
+      {
+        "dayName": "Thu",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      },
+      {
+        "dayName": "Fri",
+        "startTime": "08:00",
+        "endTime": "12:00"
+      }
+    ]
+  },
+  {
+    "doctorId": 3,
+    "availability": [
+      {
+        "dayName": "Wed",
+        "startTime": "10:00",
+        "endTime": "18:00"
+      },
+      {
+        "dayName": "Thu",
+        "startTime": "10:00",
+        "endTime": "18:00"
+      },
+      {
+        "dayName": "Fri",
+        "startTime": "08:00",
+        "endTime": "16:00"
+      }
+    ]
+  }
+]

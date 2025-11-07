@@ -51,7 +51,7 @@ class ProfileGetServiceTest extends AbstractTestBase {
 
     @Test
     void getUserProfile_patientFound_returnsPatientProfile() {
-        User user = mockUser(1, "patient@example.com", Roles.PATIENT);
+        User user = mockUser("patient@example.com", Roles.PATIENT, 1);
         Patient patient = Patient.builder().id(1).build();
 
         when(userRepository.findByEmailIgnoreCase(user.getEmail())).thenReturn(Optional.of(user));
@@ -66,7 +66,7 @@ class ProfileGetServiceTest extends AbstractTestBase {
 
     @Test
     void getUserProfile_patientProfileMissing_returns404Response() {
-        User user = mockUser(2, "patient2@example.com", Roles.PATIENT);
+        User user = mockUser("patient2@example.com", Roles.PATIENT, 2);
 
         when(userRepository.findByEmailIgnoreCase(user.getEmail())).thenReturn(Optional.of(user));
         when(patientRepository.findById(2)).thenReturn(Optional.empty());
@@ -79,7 +79,7 @@ class ProfileGetServiceTest extends AbstractTestBase {
 
     @Test
     void getUserProfile_doctorFound_returnsDoctorProfile() {
-        User user = mockUser(3, "doctor@example.com", Roles.DOCTOR);
+        User user = mockUser("doctor@example.com", Roles.DOCTOR, 3);
         Doctor doctor = Doctor.builder().id(3).build();
 
         when(userRepository.findByEmailIgnoreCase(user.getEmail())).thenReturn(Optional.of(user));
@@ -93,7 +93,7 @@ class ProfileGetServiceTest extends AbstractTestBase {
 
     @Test
     void getUserProfile_doctorProfileMissing_returns404Response() {
-        User user = mockUser(4, "doctor2@example.com", Roles.DOCTOR);
+        User user = mockUser("doctor2@example.com", Roles.DOCTOR, 4);
 
         when(userRepository.findByEmailIgnoreCase(user.getEmail())).thenReturn(Optional.of(user));
         when(doctorRepository.findById(4)).thenReturn(Optional.empty());
@@ -106,7 +106,7 @@ class ProfileGetServiceTest extends AbstractTestBase {
 
     @Test
     void getUserProfile_userWithUnsupportedRole_returnsGenericMessage() {
-        User user = mockUser(5, "staff@example.com", "SUPPORT STAFF");
+        User user = mockUser("staff@example.com", Roles.SUPPORT_STAFF, 5);
 
         when(userRepository.findByEmailIgnoreCase(user.getEmail())).thenReturn(Optional.of(user));
 
@@ -136,11 +136,11 @@ class ProfileGetServiceTest extends AbstractTestBase {
         when(patientRepository.findAll()).thenReturn(List.of(p1, p2, p3));
 
         // Case 1: valid user for p1
-        when(userRepository.findById(1)).thenReturn(Optional.of(mockUser(1, "john@example.com", "Patient")));
+        when(userRepository.findById(1)).thenReturn(Optional.of(mockUser("john@example.com", Roles.PATIENT, 1)));
         // Case 2: no user found for p2
         when(userRepository.findById(2)).thenReturn(Optional.empty());
         // Case 3: valid user for p3
-        when(userRepository.findById(3)).thenReturn(Optional.of(mockUser(3, "jane@example.com", "Patient")));
+        when(userRepository.findById(3)).thenReturn(Optional.of(mockUser("jane@example.com", Roles.PATIENT, 3)));
 
         // Act
         ArrayList<PatientProfile> result = profileGetService.getAllPatients();
@@ -177,8 +177,8 @@ class ProfileGetServiceTest extends AbstractTestBase {
         when(doctorRepository.findAll()).thenReturn(List.of(d1, d2, d3));
 
         // Case 1: valid user for d1 and d2
-        when(userRepository.findById(1)).thenReturn(Optional.of(mockUser(1, "john@healpoint.com", "Doctor")));
-        when(userRepository.findById(2)).thenReturn(Optional.of(mockUser(2, "alice@healpoint.com", "Doctor")));
+        when(userRepository.findById(1)).thenReturn(Optional.of(mockUser("john@healpoint.com", Roles.DOCTOR, 1)));
+        when(userRepository.findById(2)).thenReturn(Optional.of(mockUser("alice@healpoint.com", Roles.DOCTOR, 2)));
         // Case 2: no user found for d3
         when(userRepository.findById(3)).thenReturn(Optional.empty());
 

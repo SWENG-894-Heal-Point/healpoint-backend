@@ -96,7 +96,7 @@ class ProfileUpdateServiceTest extends AbstractTestBase {
 
     @Test
     void updateUserProfile_existingPatient_updatesUserAndPatientProfile() {
-        User user = mockUser(10, "patient@example.com", Roles.PATIENT);
+        User user = mockUser("patient@example.com", Roles.PATIENT, 10);
         Patient patient = Patient.builder().id(10).build();
 
         UpdateProfileDto dto = new UpdateProfileDto();
@@ -109,7 +109,7 @@ class ProfileUpdateServiceTest extends AbstractTestBase {
         when(userRepository.findByEmailIgnoreCase(user.getEmail())).thenReturn(Optional.of(user));
         when(patientRepository.findById(10)).thenReturn(Optional.of(patient));
 
-        User loggedUser = mockUser(10, "patient@example.com", Roles.PATIENT);
+        User loggedUser = mockUser("patient@example.com", Roles.PATIENT, 10);
         when(datastore.getUserByToken("token")).thenReturn(loggedUser);
 
         String updatedEmail = profileUpdateService.updateUserProfile(dto, "patient@example.com");
@@ -123,7 +123,7 @@ class ProfileUpdateServiceTest extends AbstractTestBase {
 
     @Test
     void updateUserProfile_existingDoctor_updatesUserAndDoctorProfile() {
-        User user = mockUser(11, "doctor@example.com", Roles.DOCTOR);
+        User user = mockUser("doctor@example.com", Roles.DOCTOR, 11);
         Doctor doctor = Doctor.builder().id(11).build();
 
         UpdateProfileDto dto = new UpdateProfileDto();
@@ -136,7 +136,7 @@ class ProfileUpdateServiceTest extends AbstractTestBase {
         when(userRepository.findByEmailIgnoreCase(user.getEmail())).thenReturn(Optional.of(user));
         when(doctorRepository.findById(11)).thenReturn(Optional.of(doctor));
 
-        User loggedUser = mockUser(11, "doctor@example.com", Roles.DOCTOR);
+        User loggedUser = mockUser("doctor@example.com", Roles.DOCTOR, 11);
         when(datastore.getUserByToken("token")).thenReturn(loggedUser);
 
         String updatedEmail = profileUpdateService.updateUserProfile(dto, "doctor@example.com");
@@ -160,7 +160,7 @@ class ProfileUpdateServiceTest extends AbstractTestBase {
 
     @Test
     void updateUserProfile_patientProfileMissing_throwsEntityNotFoundException() {
-        User user = mockUser(12, "patient2@example.com", Roles.PATIENT);
+        User user = mockUser("patient2@example.com", Roles.PATIENT, 12);
         UpdateProfileDto dto = new UpdateProfileDto();
         dto.setEmail("patient2@example.com");
 
@@ -172,7 +172,7 @@ class ProfileUpdateServiceTest extends AbstractTestBase {
 
     @Test
     void updateUserProfile_doctorProfileMissing_throwsEntityNotFoundException() {
-        User user = mockUser(13, "doctor2@example.com", Roles.DOCTOR);
+        User user = mockUser("doctor2@example.com", Roles.DOCTOR, 13);
         UpdateProfileDto dto = new UpdateProfileDto();
         dto.setEmail("doctor2@example.com");
 

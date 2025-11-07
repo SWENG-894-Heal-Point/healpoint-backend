@@ -7,6 +7,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 
+/**
+ * Data Transfer Object for updating user profile information.
+ * <p>
+ * Includes fields for email, gender, and phone number with appropriate validation annotations.
+ * </p>
+ *
+ * @author Mahfuzur Rahman
+ */
 @Getter
 @Setter
 public class UpdateProfileDto extends RoleBasedDto {

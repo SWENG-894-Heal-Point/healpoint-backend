@@ -1,0 +1,74 @@
+[
+  {
+    "patientId": 7,
+    "doctorId": 3,
+    "appointmentDate": "2025-03-12",
+    "appointmentTime": "10:30",
+    "reason": "Annual physical exam",
+    "status": "COMPLETED"
+  },
+  {
+    "patientId": 7,
+    "doctorId": 3,
+    "appointmentDate": "2025-04-03",
+    "appointmentTime": "15:00",
+    "reason": "Follow-up visit",
+    "status": "MISSED"
+  },
+  {
+    "patientId": 5,
+    "doctorId": 2,
+    "appointmentDate": "2025-04-08",
+    "appointmentTime": "11:00",
+    "reason": "Discuss a new problem",
+    "status": "COMPLETED"
+  },
+  {
+    "patientId": 7,
+    "doctorId": 3,
+    "appointmentDate": "2025-04-16",
+    "appointmentTime": "16:30",
+    "reason": "Follow-up visit",
+    "status": "COMPLETED"
+  },
+  {
+    "patientId": 7,
+    "doctorId": 2,
+    "appointmentDate": "2025-05-22",
+    "appointmentTime": "14:30",
+    "reason": "Discuss a new problem",
+    "status": "COMPLETED"
+  },
+  {
+    "patientId": 5,
+    "doctorId": 2,
+    "appointmentDate": "2025-05-30",
+    "appointmentTime": "10:00",
+    "reason": "Follow-up visit",
+    "status": "COMPLETED"
+  },
+  {
+    "patientId": 5,
+    "doctorId": 2,
+    "appointmentDate": "2025-12-22",
+    "appointmentTime": "11:30",
+    "reason": "Follow-up visit",
+    "status": "SCHEDULED"
+  },
+  {
+    "patientId": 7,
+    "doctorId": 2,
+    "appointmentDate": "2025-12-22",
+    "appointmentTime": "15:00",
+    "reason": "Follow-up visit",
+    "status": "SCHEDULED"
+  },
+  {
+    "patientId": 5,
+    "doctorId": 3,
+    "appointmentDate": "2026-01-08",
+    "appointmentTime": "12:30",
+    "reason": "Annual physical exam",
+    "status": "SCHEDULED"
+  }
+]
