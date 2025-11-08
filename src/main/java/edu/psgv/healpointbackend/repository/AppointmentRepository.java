@@ -27,6 +27,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
                     a.appointmentDate AS date,
                     COUNT(a) AS appointmentCount
                 FROM Appointment a
+                WHERE a.status <> 'CANCELED'
                 GROUP BY a.doctor.id, a.appointmentDate
                 ORDER BY a.appointmentDate, a.doctor.id
             """)

@@ -50,7 +50,7 @@ class AppointmentAvailabilityServiceTest extends AbstractTestBase {
 
     @Test
     void getAvailableAppointmentSlots_multipleDoctors_mixedAvailability() {
-        LocalDate date = LocalDate.now();
+        LocalDate date = LocalDate.now().plusDays(2);
         List<Integer> doctorIds = List.of(1, 2);
 
         // Doctor 1 has available slots
@@ -72,7 +72,7 @@ class AppointmentAvailabilityServiceTest extends AbstractTestBase {
         int doctorId = 1;
         Doctor doctor = mockDoctor(doctorId, "Test", "Doctor");
         Patient patient = mockPatient(1, "Test", "Patient");
-        LocalDate date = LocalDate.of(2025, 11, 3);
+        LocalDate date = LocalDate.now().plusDays(2);
 
         WorkDay workDay = WorkDay.builder().dayName("MON").startTime(LocalTime.of(8, 0)).endTime(LocalTime.of(10, 0)).build();
 

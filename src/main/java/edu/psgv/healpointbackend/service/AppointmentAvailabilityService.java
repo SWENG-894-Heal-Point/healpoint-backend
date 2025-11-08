@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.psgv.healpointbackend.dto.AppointmentCountDto;
 import edu.psgv.healpointbackend.dto.AvailableAppointmentDatesDto;
 import edu.psgv.healpointbackend.dto.AvailableAppointmentSlotsDto;
-import edu.psgv.healpointbackend.model.Appointment;
-import edu.psgv.healpointbackend.model.Doctor;
-import edu.psgv.healpointbackend.model.Slot;
-import edu.psgv.healpointbackend.model.WorkDay;
+import edu.psgv.healpointbackend.model.*;
 import edu.psgv.healpointbackend.repository.AppointmentRepository;
 import edu.psgv.healpointbackend.repository.DoctorRepository;
 import edu.psgv.healpointbackend.repository.WorkDayRepository;
@@ -98,6 +95,9 @@ public class AppointmentAvailabilityService {
      */
     public AvailableAppointmentSlotsDto createAvailableSlotsDto(LocalDate selectedDate, Integer doctorId) {
         try {
+            LocalDate minDate = LocalDate.now().plusDays(1);
+            if (selectedDate.isBefore(minDate)) return null;
+
             String selectedDayName = selectedDate.getDayOfWeek().name().substring(0, 3);
             Doctor doctor = doctorRepository.findById(doctorId).orElse(null);
 
@@ -105,7 +105,9 @@ public class AppointmentAvailabilityService {
             if (daySchedule == null) return null;
 
             List<Slot> slots = slotGenerator.generateSlots(daySchedule.getStartTime(), daySchedule.getEndTime());
-            List<Appointment> bookedAppointments = appointmentRepository.findByDoctorIdAndAppointmentDate(doctorId, selectedDate);
+            List<Appointment> bookedAppointments = appointmentRepository.findByDoctorIdAndAppointmentDate(doctorId, selectedDate).stream()
+                    .filter(appointment -> !appointment.getStatus().equalsIgnoreCase(AppointmentStatus.CANCELED))
+                    .toList();
 
             for (Appointment appointment : bookedAppointments) {
                 slots.removeIf(slot -> slot.getStartTime().equals(appointment.getStartTime()) && slot.getEndTime().equals(appointment.getEndTime()));
@@ -129,7 +131,7 @@ public class AppointmentAvailabilityService {
     public List<AvailableAppointmentDatesDto> getAvailableAppointmentDates() {
         LOGGER.info("Starting available appointment date calculation...");
 
-        LocalDate currentDate = LocalDate.now();
+        LocalDate minDate = LocalDate.now().plusDays(1);
         List<AppointmentCountDto> appointmentCounts = appointmentRepository.getAppointmentCounts();
         List<Doctor> doctors = doctorRepository.findAll();
         List<AvailableAppointmentDatesDto> availableDatesList = new ArrayList<>();
@@ -148,7 +150,7 @@ public class AppointmentAvailabilityService {
             }
 
             availableDatesList.add(new AvailableAppointmentDatesDto(doctor,
-                    calculateAvailableDatesForDoctor(doctor, currentDate, convertScheduleToMap(schedule), appointmentMap)));
+                    calculateAvailableDatesForDoctor(doctor, minDate, convertScheduleToMap(schedule), appointmentMap)));
         }
 
         LOGGER.info("Completed availability calculation for {} doctors.", doctors.size());
@@ -159,17 +161,17 @@ public class AppointmentAvailabilityService {
      * Calculates available appointment dates for a specific doctor.
      *
      * @param doctor         the doctor for whom to calculate available dates
-     * @param currentDate    the current date
+     * @param minDate        the current date
      * @param scheduleMap    a map of work days to slot counts
      * @param appointmentMap a map of existing appointments grouped by doctor and date
      * @return a list of available LocalDate objects for the doctor
      */
-    private List<LocalDate> calculateAvailableDatesForDoctor(Doctor doctor, LocalDate currentDate, Map<String, Integer> scheduleMap,
+    private List<LocalDate> calculateAvailableDatesForDoctor(Doctor doctor, LocalDate minDate, Map<String, Integer> scheduleMap,
                                                              Map<Integer, Map<LocalDate, Integer>> appointmentMap) {
         final Map<LocalDate, Integer> bookedByDate = appointmentMap.getOrDefault(doctor.getId(), Collections.emptyMap());
 
         return IntStream.range(0, MAX_APPOINTMENT_DAYS)
-                .mapToObj(currentDate::plusDays)
+                .mapToObj(minDate::plusDays)
                 .filter(date -> {
                     String dayKey = date.getDayOfWeek().name().substring(0, 3);
                     int slots = scheduleMap.getOrDefault(dayKey, 0);
