@@ -1,6 +1,7 @@
 package edu.psgv.healpointbackend.controller;
 
 import edu.psgv.healpointbackend.dto.ScheduleAppointmentDto;
+import edu.psgv.healpointbackend.dto.UpdateAppointmentDto;
 import edu.psgv.healpointbackend.model.Appointment;
 import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.model.User;
@@ -89,6 +90,32 @@ public class AppointmentController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             LOGGER.error("Unexpected error scheduling appointment: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("An unexpected error occurred.");
+        }
+    }
+
+    /**
+     * Updates an existing appointment based on the provided details.
+     *
+     * @param dto the appointment update details
+     * @return ResponseEntity indicating success or failure of the operation
+     */
+    @PostMapping("/api/update-appointment")
+    public ResponseEntity<Object> updateAppointment(@Valid @RequestBody UpdateAppointmentDto dto) {
+        try {
+            LOGGER.info("Received request to update appointment ID: {}", dto.getAppointmentId());
+            User requestor = accessManager.enforceOwnershipBasedAccess(dto.getToken());
+            appointmentService.updateAppointment(dto, requestor);
+            LOGGER.info("Appointment updated successfully");
+            return ResponseEntity.ok("Appointment updated successfully.");
+        } catch (SecurityException e) {
+            LOGGER.warn("Unauthorized access attempt with token {}: {}", dto.getToken(), e.getMessage(), e);
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Error updating appointment: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Unexpected error updating appointment: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body("An unexpected error occurred.");
         }
     }
