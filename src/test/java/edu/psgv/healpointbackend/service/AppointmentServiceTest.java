@@ -3,6 +3,7 @@ package edu.psgv.healpointbackend.service;
 import edu.psgv.healpointbackend.AbstractTestBase;
 import edu.psgv.healpointbackend.dto.AvailableAppointmentSlotsDto;
 import edu.psgv.healpointbackend.dto.ScheduleAppointmentDto;
+import edu.psgv.healpointbackend.dto.UpdateAppointmentDto;
 import edu.psgv.healpointbackend.model.*;
 import edu.psgv.healpointbackend.repository.AppointmentRepository;
 import edu.psgv.healpointbackend.repository.DoctorRepository;
@@ -40,14 +41,13 @@ class AppointmentServiceTest extends AbstractTestBase {
     private Doctor doctor;
     private Patient patient;
     private LocalDate date;
-    private LocalTime startTime;
     private Slot slot;
 
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
         date = LocalDate.now().plusDays(1);
-        startTime = LocalTime.of(9, 0);
+        LocalTime startTime = LocalTime.of(9, 0);
         slot = new Slot(startTime, startTime.plusMinutes(30));
 
         doctor = mockDoctor(1, "Doctor", "Smith");
@@ -73,7 +73,7 @@ class AppointmentServiceTest extends AbstractTestBase {
 
         List<Appointment> appointments = appointmentService.getAllAppointmentsByUser(mockPatientUser);
 
-        assertTrue(appointments.size() == 3);
+        assertEquals(3, appointments.size());
         assertTrue(appointments.contains(a1));
         assertTrue(appointments.contains(a2));
         assertTrue(appointments.contains(a3));
@@ -144,5 +144,98 @@ class AppointmentServiceTest extends AbstractTestBase {
         IllegalArgumentException ex2 = assertThrows(IllegalArgumentException.class,
                 () -> appointmentService.scheduleAppointment(dto));
         assertTrue(ex2.getMessage().contains("does not have any available slots"));
+    }
+
+    @Test
+    void updateAppointment_validRequest_appointmentUpdated() {
+        LocalDate newDate = LocalDate.of(2025, 12, 20);
+        LocalTime newTime = LocalTime.of(9, 0);
+
+        AvailableAppointmentSlotsDto slotsDto = new AvailableAppointmentSlotsDto(doctor, newDate, List.of(new Slot(newTime, newTime.plusMinutes(30))));
+        when(appointmentAvailabilityService.createAvailableSlotsDto(newDate, doctor.getId())).thenReturn(slotsDto);
+
+        Appointment existingAppointment = mockAppointment(doctor, patient, "2025-12-16", "14:30", AppointmentStatus.SCHEDULED);
+        when(appointmentRepository.findById(1)).thenReturn(Optional.of(existingAppointment));
+
+        User requestor = mockUser("patient@example.com", Roles.PATIENT, 2);
+        UpdateAppointmentDto updateDto1 = mockUpdateAppointmentDto(1, newDate, newTime, null);
+        appointmentService.updateAppointment(updateDto1, requestor);
+        verifyAppointmentUpdate(existingAppointment, newDate, newTime, AppointmentStatus.SCHEDULED, 1);
+
+        UpdateAppointmentDto updateDto2 = mockUpdateAppointmentDto(1, null, null, AppointmentStatus.CANCELED);
+        appointmentService.updateAppointment(updateDto2, requestor);
+        verifyAppointmentUpdate(existingAppointment, newDate, newTime, AppointmentStatus.CANCELED, 2);
+    }
+
+    @Test
+    void updateAppointment_selectPastDate_throwsException() {
+        LocalDate newDate = LocalDate.now().minusDays(5);
+        LocalTime newTime = LocalTime.of(9, 0);
+        UpdateAppointmentDto updateDto = mockUpdateAppointmentDto(3, newDate, newTime, null);
+
+        User requestor = mockUser("patient@example.com", Roles.PATIENT, 2);
+
+        Appointment existingAppointment = mockAppointment(doctor, patient, "2025-12-16", "14:30", AppointmentStatus.SCHEDULED);
+        when(appointmentRepository.findById(3)).thenReturn(Optional.of(existingAppointment));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> appointmentService.updateAppointment(updateDto, requestor));
+        assertTrue(ex.getMessage().contains("Appointment date cannot be in the past."));
+    }
+
+    @Test
+    void updateAppointment_invalidRequest_throwsException() {
+        User requestor = mockUser("patient@example.com", Roles.PATIENT, 2);
+
+        // Appointment not found
+        UpdateAppointmentDto updateDto1 = mockUpdateAppointmentDto(99, null, null, AppointmentStatus.CANCELED);
+        when(appointmentRepository.findById(99)).thenReturn(Optional.empty());
+        IllegalArgumentException ex1 = assertThrows(IllegalArgumentException.class,
+                () -> appointmentService.updateAppointment(updateDto1, requestor));
+        assertTrue(ex1.getMessage().contains("Appointment with ID 99 not found"));
+
+        // Unauthorized user
+        Appointment existingAppointment = mockAppointment(doctor, patient, "2025-12-16", "14:30", AppointmentStatus.SCHEDULED);
+        when(appointmentRepository.findById(2)).thenReturn(Optional.of(existingAppointment));
+        UpdateAppointmentDto updateDto2 = mockUpdateAppointmentDto(2, null, null, AppointmentStatus.CANCELED);
+        User unauthorizedUser = mockUser("patient@example.com", Roles.PATIENT, 99);
+        SecurityException ex2 = assertThrows(SecurityException.class,
+                () -> appointmentService.updateAppointment(updateDto2, unauthorizedUser));
+        assertTrue(ex2.getMessage().contains("User is not authorized to update this appointment."));
+
+        // Invalid status
+        UpdateAppointmentDto updateDto3 = mockUpdateAppointmentDto(2, null, null, "INVALID_STATUS");
+        when(appointmentRepository.findById(2)).thenReturn(Optional.of(existingAppointment));
+        IllegalArgumentException ex3 = assertThrows(IllegalArgumentException.class,
+                () -> appointmentService.updateAppointment(updateDto3, requestor));
+        assertTrue(ex3.getMessage().contains("Invalid appointment status: INVALID_STATUS"));
+
+        // Incomplete update info
+        UpdateAppointmentDto updateDto4 = mockUpdateAppointmentDto(2, null, null, null);
+        when(appointmentRepository.findById(2)).thenReturn(Optional.of(existingAppointment));
+        IllegalArgumentException ex4 = assertThrows(IllegalArgumentException.class,
+                () -> appointmentService.updateAppointment(updateDto4, requestor));
+        assertTrue(ex4.getMessage().contains("Either status or appointment date & time must be provided for update."));
+    }
+
+    UpdateAppointmentDto mockUpdateAppointmentDto(int id, LocalDate newDate, LocalTime newTime, String status) {
+        UpdateAppointmentDto updateDto = new UpdateAppointmentDto();
+        updateDto.setAppointmentId(id);
+        updateDto.setAppointmentDate(newDate);
+        updateDto.setAppointmentTime(newTime);
+        updateDto.setStatus(status);
+        return updateDto;
+    }
+
+    void verifyAppointmentUpdate(Appointment appointment, LocalDate newDate, LocalTime newTime, String status, int callCount) {
+
+        verify(appointmentRepository, times(callCount)).save(appointment);
+        Optional<Appointment> updatedAppointmentOpt = appointmentRepository.findById(1);
+        assertTrue(updatedAppointmentOpt.isPresent());
+
+        Appointment updatedAppointment = updatedAppointmentOpt.get();
+        assertEquals(newDate, updatedAppointment.getAppointmentDate());
+        assertEquals(newTime, updatedAppointment.getStartTime());
+        assertEquals(status, updatedAppointment.getStatus());
     }
 }

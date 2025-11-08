@@ -2,6 +2,7 @@ package edu.psgv.healpointbackend.controller;
 
 import edu.psgv.healpointbackend.AbstractTestBase;
 import edu.psgv.healpointbackend.dto.ScheduleAppointmentDto;
+import edu.psgv.healpointbackend.dto.UpdateAppointmentDto;
 import edu.psgv.healpointbackend.model.Appointment;
 import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.model.User;
@@ -31,10 +32,16 @@ class AppointmentControllerTest extends AbstractTestBase {
     private AppointmentController controller;
 
     private final String TEST_EMAIL = "user@test.com";
+    private User requestor;
+    private UpdateAppointmentDto updateAppointmentDto;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        updateAppointmentDto = new UpdateAppointmentDto();
+        updateAppointmentDto.setToken("validToken");
+        updateAppointmentDto.setAppointmentId(1);
+        requestor = mockUser(TEST_EMAIL, Roles.DOCTOR, 5);
     }
 
     @Test
@@ -126,5 +133,43 @@ class AppointmentControllerTest extends AbstractTestBase {
         ResponseEntity<Object> serverError = controller.scheduleAppointment(dto);
         assertEquals(500, serverError.getStatusCode().value());
         assertEquals("An unexpected error occurred.", serverError.getBody());
+    }
+
+    @Test
+    void updateAppointment_validInput_successResponse() {
+        when(accessManager.enforceOwnershipBasedAccess(updateAppointmentDto.getToken())).thenReturn(requestor);
+
+        ResponseEntity<Object> response = controller.updateAppointment(updateAppointmentDto);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals("Appointment updated successfully.", response.getBody());
+        verify(appointmentService).updateAppointment(updateAppointmentDto, requestor);
+    }
+
+    @Test
+    void updateAppointment_exceptions_returnProperResponses() {
+        // SecurityException path
+        when(accessManager.enforceOwnershipBasedAccess(updateAppointmentDto.getToken()))
+                .thenThrow(new SecurityException("Unauthorized"));
+        ResponseEntity<Object> securityResponse = controller.updateAppointment(updateAppointmentDto);
+        assertEquals(401, securityResponse.getStatusCode().value());
+        assertEquals("Unauthorized", securityResponse.getBody());
+
+        // IllegalArgumentException path
+        reset(accessManager);
+        when(accessManager.enforceOwnershipBasedAccess(updateAppointmentDto.getToken())).thenReturn(requestor);
+        doThrow(new IllegalArgumentException("Invalid data")).when(appointmentService)
+                .updateAppointment(updateAppointmentDto, requestor);
+        ResponseEntity<Object> illegalArgResponse = controller.updateAppointment(updateAppointmentDto);
+        assertEquals(400, illegalArgResponse.getStatusCode().value());
+        assertEquals("Invalid data", illegalArgResponse.getBody());
+
+        // Generic Exception path
+        reset(appointmentService);
+        when(accessManager.enforceOwnershipBasedAccess(updateAppointmentDto.getToken())).thenReturn(requestor);
+        doThrow(new RuntimeException("DB error")).when(appointmentService).updateAppointment(updateAppointmentDto, requestor);
+        ResponseEntity<Object> genericResponse = controller.updateAppointment(updateAppointmentDto);
+        assertEquals(500, genericResponse.getStatusCode().value());
+        assertEquals("An unexpected error occurred.", genericResponse.getBody());
     }
 }
