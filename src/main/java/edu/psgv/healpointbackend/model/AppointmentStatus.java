@@ -1,5 +1,7 @@
 package edu.psgv.healpointbackend.model;
 
+import java.util.List;
+
 /**
  * Defines appointment statuses within the application.
  * <ul>
@@ -14,6 +16,12 @@ public class AppointmentStatus {
     public static final String COMPLETED = "COMPLETED";
     public static final String MISSED = "MISSED";
     public static final String SCHEDULED = "SCHEDULED";
+    public static final List<String> VALID_STATUSES = List.of(
+            CANCELED,
+            COMPLETED,
+            MISSED,
+            SCHEDULED
+    );
 
     /**
      * Private constructor to prevent instantiation.
