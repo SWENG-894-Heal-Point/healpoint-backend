@@ -50,7 +50,7 @@ class AppointmentAvailabilityServiceTest extends AbstractTestBase {
 
     @Test
     void getAvailableAppointmentSlots_multipleDoctors_mixedAvailability() {
-        LocalDate date = LocalDate.now().plusDays(2);
+        LocalDate date = LocalDate.now().plusDays(1);
         List<Integer> doctorIds = List.of(1, 2);
 
         // Doctor 1 has available slots
@@ -72,15 +72,16 @@ class AppointmentAvailabilityServiceTest extends AbstractTestBase {
         int doctorId = 1;
         Doctor doctor = mockDoctor(doctorId, "Test", "Doctor");
         Patient patient = mockPatient(1, "Test", "Patient");
-        LocalDate date = LocalDate.now().plusDays(2);
+        LocalDate date = LocalDate.now().plusDays(1);
+        String dayName = date.getDayOfWeek().name().substring(0, 3);
 
-        WorkDay workDay = WorkDay.builder().dayName("MON").startTime(LocalTime.of(8, 0)).endTime(LocalTime.of(10, 0)).build();
+        WorkDay workDay = WorkDay.builder().dayName(dayName).startTime(LocalTime.of(8, 0)).endTime(LocalTime.of(10, 0)).build();
 
         Slot slot1 = new Slot(LocalTime.of(8, 0), LocalTime.of(9, 0));
         Slot slot2 = new Slot(LocalTime.of(9, 0), LocalTime.of(10, 0));
 
         when(doctorRepository.findById(doctorId)).thenReturn(Optional.of(doctor));
-        when(workDayRepository.findByDoctorIdAndDayName(doctorId, "MON")).thenReturn(Optional.of(workDay));
+        when(workDayRepository.findByDoctorIdAndDayName(doctorId, dayName)).thenReturn(Optional.of(workDay));
         when(slotGenerator.generateSlots(workDay.getStartTime(), workDay.getEndTime())).thenReturn(new ArrayList<>(List.of(slot1, slot2)));
 
         Appointment booked = new Appointment(doctor, patient, date, LocalTime.of(8, 0), LocalTime.of(9, 0), "Follow-up");
