@@ -16,10 +16,18 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Integer> {
     /**
-     * Finds notifications by user ID.
+     * Finds notifications by recipient ID.
      *
-     * @param userId the ID of the user
-     * @return a list of notifications associated with the user
+     * @param recipientId the ID of the recipient
+     * @return a list of notifications associated with the recipient
      */
-    List<Notification> findByUserId(Integer userId);
+    List<Notification> findByRecipientId(Integer recipientId);
+
+    /**
+     * Finds notifications by recipient group.
+     *
+     * @param recipientGroup the group of recipients
+     * @return a list of notifications associated with the recipient group
+     */
+    List<Notification> findByRecipientGroup(String recipientGroup);
 }
