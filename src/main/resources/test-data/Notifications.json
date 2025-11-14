@@ -1,0 +1,62 @@
+[
+  {
+    "userId": null,
+    "recipientId": 7,
+    "recipientGroup": null,
+    "message": "Your appointment with Dr. Smith is confirmed for 3 PM."
+  },
+  {
+    "userId": null,
+    "recipientId": null,
+    "recipientGroup": "DOCTOR",
+    "message": "System maintenance scheduled tonight at 11 PM."
+  },
+  {
+    "userId": 4,
+    "recipientId": 2,
+    "recipientGroup": null,
+    "message": "You have been assigned a new patient case (ID: 5471)."
+  },
+  {
+    "userId": null,
+    "recipientId": 7,
+    "recipientGroup": null,
+    "message": "Your lab test has been scheduled for tomorrow morning."
+  },
+  {
+    "userId": null,
+    "recipientId": null,
+    "recipientGroup": "DOCTOR",
+    "message": "Reminder: Weekly case review meeting at 4 PM."
+  },
+  {
+    "userId": 5,
+    "recipientId": 2,
+    "recipientGroup": null,
+    "message": "Lab results for patient John Carter are ready for review."
+  },
+  {
+    "userId": null,
+    "recipientId": 7,
+    "recipientGroup": null,
+    "message": "Doctor refilled your prescription."
+  },
+  {
+    "userId": null,
+    "recipientId": null,
+    "recipientGroup": "DOCTOR",
+    "message": "New clinical guideline update is available."
+  },
+  {
+    "userId": 6,
+    "recipientId": 2,
+    "recipientGroup": null,
+    "message": "Mike Johnson requested for prescription refills."
+  },
+  {
+    "userId": null,
+    "recipientId": 7,
+    "recipientGroup": null,
+    "message": "Your prescription is ready for pickup."
+  }
+]
