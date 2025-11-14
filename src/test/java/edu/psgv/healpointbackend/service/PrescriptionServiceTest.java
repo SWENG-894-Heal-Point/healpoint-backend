@@ -4,6 +4,7 @@ import edu.psgv.healpointbackend.dto.PrescriptionDto;
 import edu.psgv.healpointbackend.model.Patient;
 import edu.psgv.healpointbackend.model.Prescription;
 import edu.psgv.healpointbackend.model.PrescriptionItem;
+import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.repository.NotificationRepository;
 import edu.psgv.healpointbackend.repository.PatientRepository;
 import edu.psgv.healpointbackend.repository.PrescriptionRepository;
@@ -237,7 +238,7 @@ class PrescriptionServiceTest {
         verify(notificationRepository).save(argThat(n ->
                 n.getMessage().contains("Doe, John") &&
                         n.getMessage().contains("MedA") &&
-                        n.getRecipientGroup().equals("Doctor")));
+                        n.getRecipientGroup().equals(Roles.DOCTOR)));
 
         // Invalid case - medication not in prescription
         IllegalArgumentException e3 = assertThrows(IllegalArgumentException.class,

@@ -1,18 +1,18 @@
 [
   {
     "RoleID": 1,
-    "RoleDescription": "Admin"
+    "RoleDescription": "ADMIN"
   },
   {
     "RoleID": 2,
-    "RoleDescription": "Doctor"
+    "RoleDescription": "DOCTOR"
   },
   {
     "RoleID": 3,
-    "RoleDescription": "Support Staff"
+    "RoleDescription": "SUPPORT_STAFF"
   },
   {
     "RoleID": 4,
-    "RoleDescription": "Patient"
+    "RoleDescription": "PATIENT"
   }
 ]
