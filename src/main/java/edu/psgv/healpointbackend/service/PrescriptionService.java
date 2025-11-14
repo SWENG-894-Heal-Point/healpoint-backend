@@ -1,10 +1,7 @@
 package edu.psgv.healpointbackend.service;
 
 import edu.psgv.healpointbackend.dto.PrescriptionDto;
-import edu.psgv.healpointbackend.model.Notification;
-import edu.psgv.healpointbackend.model.Patient;
-import edu.psgv.healpointbackend.model.Prescription;
-import edu.psgv.healpointbackend.model.PrescriptionItem;
+import edu.psgv.healpointbackend.model.*;
 import edu.psgv.healpointbackend.repository.NotificationRepository;
 import edu.psgv.healpointbackend.repository.PatientRepository;
 import edu.psgv.healpointbackend.repository.PrescriptionRepository;
@@ -158,7 +155,7 @@ public class PrescriptionService {
 
         String message = String.format("%s, %s (ID: %d) requested a refill for %s",
                 patient.getLastName(), patient.getFirstName(), patient.getId(), String.join(", ", medications));
-        Notification notification = Notification.builder().userId(patientId).message(message).recipientGroup("Doctor").build();
+        Notification notification = Notification.builder().userId(patientId).message(message).recipientGroup(Roles.DOCTOR).build();
 
         notificationRepository.save(notification);
         LOGGER.info("Refill request notification created for patientId={}", patientId);

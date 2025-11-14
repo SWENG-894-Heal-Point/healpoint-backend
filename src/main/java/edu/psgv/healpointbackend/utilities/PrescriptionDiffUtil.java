@@ -62,7 +62,7 @@ public class PrescriptionDiffUtil {
      * @param newItem the updated PrescriptionItem
      * @return a string detailing the differences, or an empty string if no differences exist
      */
-    public String comparePrescriptionItem(PrescriptionItem oldItem, PrescriptionItem newItem) {
+    private String comparePrescriptionItem(PrescriptionItem oldItem, PrescriptionItem newItem) {
         List<String> differences = new ArrayList<>();
 
         if (!oldItem.getDosage().equals(newItem.getDosage())) {
@@ -75,7 +75,7 @@ public class PrescriptionDiffUtil {
             differences.add(String.format("duration changed from %d to %d", oldItem.getDuration(), newItem.getDuration()));
         }
         if (!oldItem.getFillsLeft().equals(newItem.getFillsLeft())) {
-            differences.add(String.format("fillsLeft changed from %d to %d", oldItem.getFillsLeft(), newItem.getFillsLeft()));
+            differences.add(String.format("fills left changed from %d to %d", oldItem.getFillsLeft(), newItem.getFillsLeft()));
         }
 
         String prefix = differences.isEmpty() ? "" : String.format("%s: ", oldItem.getMedication());
