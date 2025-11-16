@@ -1,13 +1,12 @@
 package edu.psgv.healpointbackend.service;
 
 import edu.psgv.healpointbackend.dto.PrescriptionDto;
-import edu.psgv.healpointbackend.model.Notification;
-import edu.psgv.healpointbackend.model.Patient;
-import edu.psgv.healpointbackend.model.Prescription;
-import edu.psgv.healpointbackend.model.PrescriptionItem;
+import edu.psgv.healpointbackend.model.*;
 import edu.psgv.healpointbackend.repository.NotificationRepository;
 import edu.psgv.healpointbackend.repository.PatientRepository;
 import edu.psgv.healpointbackend.repository.PrescriptionRepository;
+import edu.psgv.healpointbackend.utilities.IoHelper;
+import edu.psgv.healpointbackend.utilities.PrescriptionDiffUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +29,7 @@ public class PrescriptionService {
     private final PrescriptionRepository prescriptionRepository;
     private final PatientRepository patientRepository;
     private final NotificationRepository notificationRepository;
+    private final PrescriptionDiffUtil prescriptionDiffUtil;
 
 
     /**
@@ -38,10 +38,12 @@ public class PrescriptionService {
      * @param prescriptionRepository the repository for prescription operations
      * @param patientRepository      the repository for patient operations
      */
-    public PrescriptionService(PrescriptionRepository prescriptionRepository, PatientRepository patientRepository, NotificationRepository notificationRepository) {
+    public PrescriptionService(PrescriptionRepository prescriptionRepository, PatientRepository patientRepository,
+                               NotificationRepository notificationRepository, PrescriptionDiffUtil prescriptionDiffUtil) {
         this.prescriptionRepository = prescriptionRepository;
         this.patientRepository = patientRepository;
         this.notificationRepository = notificationRepository;
+        this.prescriptionDiffUtil = prescriptionDiffUtil;
     }
 
     /**
@@ -105,9 +107,15 @@ public class PrescriptionService {
         prescription.setPatient(patient);
         prescription.setInstruction(prescriptionDto.getInstruction());
 
-        prescription.getPrescriptionItems().clear();
         if (prescriptionDto.getPrescriptionItems() != null) {
+            String report = prescriptionDiffUtil.diffReport(prescription.getPrescriptionItems(), prescriptionDto.getPrescriptionItems());
+            if (!IoHelper.isNullOrEmpty(report)) {
+                Notification notification = Notification.builder().message(report).recipientId(patientId).build();
+                notificationRepository.save(notification);
+            }
+
             LOGGER.debug("Adding {} prescription items for patientId={}", prescriptionDto.getPrescriptionItems().size(), patientId);
+            prescription.getPrescriptionItems().clear();
             prescription.getPrescriptionItems().addAll(prescriptionDto.getPrescriptionItems());
         }
 
@@ -147,7 +155,7 @@ public class PrescriptionService {
 
         String message = String.format("%s, %s (ID: %d) requested a refill for %s",
                 patient.getLastName(), patient.getFirstName(), patient.getId(), String.join(", ", medications));
-        Notification notification = Notification.builder().userId(patientId).message(message).recipientGroup("Doctor").build();
+        Notification notification = Notification.builder().userId(patientId).message(message).recipientGroup(Roles.DOCTOR).build();
 
         notificationRepository.save(notification);
         LOGGER.info("Refill request notification created for patientId={}", patientId);

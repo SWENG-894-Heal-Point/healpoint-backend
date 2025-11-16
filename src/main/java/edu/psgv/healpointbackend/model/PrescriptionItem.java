@@ -7,6 +7,8 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 
 /**
  * Entity representing an item in a medical prescription.
@@ -50,4 +52,30 @@ public class PrescriptionItem {
     @PositiveOrZero
     @Column(name = "FillsLeft", nullable = false)
     private Integer fillsLeft;
+
+    /**
+     * Checks equality based on the medication name, ignoring case.
+     *
+     * @param o The object to compare with.
+     * @return True if the medication names are equal (case-insensitive), false otherwise.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PrescriptionItem that = (PrescriptionItem) o;
+
+        return this.medication.equalsIgnoreCase(that.medication);
+    }
+
+    /**
+     * Generates a hash code based on the medication name, ignoring case.
+     *
+     * @return The hash code for this PrescriptionItem.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(medication.toLowerCase());
+    }
 }

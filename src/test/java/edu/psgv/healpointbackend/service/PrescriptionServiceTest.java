@@ -4,9 +4,11 @@ import edu.psgv.healpointbackend.dto.PrescriptionDto;
 import edu.psgv.healpointbackend.model.Patient;
 import edu.psgv.healpointbackend.model.Prescription;
 import edu.psgv.healpointbackend.model.PrescriptionItem;
+import edu.psgv.healpointbackend.model.Roles;
 import edu.psgv.healpointbackend.repository.NotificationRepository;
 import edu.psgv.healpointbackend.repository.PatientRepository;
 import edu.psgv.healpointbackend.repository.PrescriptionRepository;
+import edu.psgv.healpointbackend.utilities.PrescriptionDiffUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -23,13 +25,19 @@ class PrescriptionServiceTest {
     private PatientRepository patientRepository;
     private NotificationRepository notificationRepository;
     private PrescriptionService prescriptionService;
+    private PrescriptionDiffUtil prescriptionDiffUtil;
 
     @BeforeEach
     void setUp() {
         prescriptionRepository = mock(PrescriptionRepository.class);
         patientRepository = mock(PatientRepository.class);
         notificationRepository = mock(NotificationRepository.class);
-        prescriptionService = new PrescriptionService(prescriptionRepository, patientRepository, notificationRepository);
+        prescriptionDiffUtil = mock(PrescriptionDiffUtil.class);
+        prescriptionService = new PrescriptionService(prescriptionRepository, patientRepository, notificationRepository, prescriptionDiffUtil);
+
+        when(prescriptionDiffUtil.diffReport(anyList(), anyList())).thenReturn("Mocked diff report");
+        when(notificationRepository.save(any())).thenReturn(null);
+
     }
 
     @Test // FR-12.5 UT-28
@@ -224,14 +232,13 @@ class PrescriptionServiceTest {
         // Valid case
         when(patientRepository.findById(1)).thenReturn(Optional.of(mockPatient));
         when(prescriptionRepository.findByPatientId(1)).thenReturn(Optional.of(mockPrescription));
-        when(notificationRepository.save(any())).thenReturn(null);
 
         prescriptionService.requestPrescriptionRefill(1, List.of("MedA"));
 
         verify(notificationRepository).save(argThat(n ->
                 n.getMessage().contains("Doe, John") &&
                         n.getMessage().contains("MedA") &&
-                        n.getRecipientGroup().equals("Doctor")));
+                        n.getRecipientGroup().equals(Roles.DOCTOR)));
 
         // Invalid case - medication not in prescription
         IllegalArgumentException e3 = assertThrows(IllegalArgumentException.class,

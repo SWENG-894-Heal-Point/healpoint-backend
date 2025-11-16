@@ -2,6 +2,7 @@ package edu.psgv.healpointbackend.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.psgv.healpointbackend.AbstractTestBase;
+import edu.psgv.healpointbackend.dto.AppointmentCountDto;
 import edu.psgv.healpointbackend.dto.AvailableAppointmentDatesDto;
 import edu.psgv.healpointbackend.dto.AvailableAppointmentSlotsDto;
 import edu.psgv.healpointbackend.model.*;
@@ -54,9 +55,10 @@ class AppointmentAvailabilityServiceTest extends AbstractTestBase {
         List<Integer> doctorIds = List.of(1, 2);
 
         // Doctor 1 has available slots
-        AvailableAppointmentSlotsDto dto1 = mock(AvailableAppointmentSlotsDto.class);
-        when(dto1.getAvailableSlots()).thenReturn(List.of(new Slot(LocalTime.of(9, 0), LocalTime.of(10, 0))));
-        doReturn(dto1).when(service).createAvailableSlotsDto(date, 1);
+        Doctor doctor1 = mockDoctor(1, "Test", "Doctor1");
+        AvailableAppointmentSlotsDto slotsDto = new AvailableAppointmentSlotsDto(doctor1, date, List.of(new Slot(LocalTime.of(9, 0), LocalTime.of(10, 0))));
+
+        doReturn(slotsDto).when(service).createAvailableSlotsDto(date, 1);
 
         // Doctor 2 has no available slots
         doReturn(null).when(service).createAvailableSlotsDto(date, 2);
@@ -64,7 +66,9 @@ class AppointmentAvailabilityServiceTest extends AbstractTestBase {
         List<AvailableAppointmentSlotsDto> result = service.getAvailableAppointmentSlots(date, doctorIds);
 
         assertEquals(1, result.size());
-        assertEquals(dto1, result.get(0));
+        assertEquals(slotsDto.getDoctor(), result.get(0).getDoctor());
+        assertEquals(slotsDto.getAppointmentDate(), result.get(0).getAppointmentDate());
+        assertEquals(slotsDto.getAvailableSlots(), result.get(0).getAvailableSlots());
     }
 
     @Test
@@ -102,10 +106,14 @@ class AppointmentAvailabilityServiceTest extends AbstractTestBase {
         Doctor doc2 = mockDoctor(2, "Test", "Doctor2");
         WorkDay wd1 = WorkDay.builder().doctor(doc1).dayName("THU").slotCount(5).build();
 
+        LocalDate date1 = LocalDate.now().plusDays(3);
+        AppointmentCountDto countDto1 = new AppointmentCountDto(1, date1, 3L);
+        AppointmentCountDto countDto2 = new AppointmentCountDto(2, date1, 5L);
+
         when(doctorRepository.findAll()).thenReturn(List.of(doc1, doc2));
         when(workDayRepository.findByDoctorId(1)).thenReturn(List.of(wd1));
         when(workDayRepository.findByDoctorId(2)).thenReturn(Collections.emptyList());
-        when(appointmentRepository.getAppointmentCounts()).thenReturn(Collections.emptyList());
+        when(appointmentRepository.getAppointmentCounts()).thenReturn(List.of(countDto1, countDto2));
 
         List<AvailableAppointmentDatesDto> result = service.getAvailableAppointmentDates();
 

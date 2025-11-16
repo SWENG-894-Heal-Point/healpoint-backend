@@ -42,7 +42,7 @@ public class Notification {
     @Column(name = "NotificationID")
     private Integer id;
 
-    @Column(name = "UserID", nullable = false)
+    @Column(name = "UserID")
     private Integer userId;
 
     @Column(name = "RecipientID")
