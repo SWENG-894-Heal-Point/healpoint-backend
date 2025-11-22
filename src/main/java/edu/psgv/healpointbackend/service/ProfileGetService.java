@@ -57,6 +57,7 @@ public class ProfileGetService {
 
             User user = userOpt.get();
             String roleDesc = user.getRole().getDescription();
+            Boolean isActive = user.getIsActive();
             LOGGER.debug("Found user={} with role={}", email, roleDesc);
 
             if (targetRole != null && !targetRole.equalsIgnoreCase(roleDesc)) {
@@ -71,7 +72,7 @@ public class ProfileGetService {
                     return ResponseEntity.status(404).body("Patient profile not found.");
                 }
                 LOGGER.info("Returning PatientProfile for email={}", email);
-                return ResponseEntity.ok(new PatientProfile(patient, email, roleDesc));
+                return ResponseEntity.ok(new PatientProfile(patient, email, roleDesc, isActive));
             }
 
             if (roleDesc.equalsIgnoreCase(Roles.DOCTOR)) {
@@ -81,7 +82,7 @@ public class ProfileGetService {
                     return ResponseEntity.status(404).body("Doctor profile not found.");
                 }
                 LOGGER.info("Returning DoctorProfile for email={}", email);
-                return ResponseEntity.ok(new DoctorProfile(doctor, email, roleDesc));
+                return ResponseEntity.ok(new DoctorProfile(doctor, email, roleDesc, isActive));
             }
 
             LOGGER.info("User with email={} has no detailed profile", email);
@@ -103,7 +104,7 @@ public class ProfileGetService {
         Iterable<Patient> patients = patientRepository.findAll();
         for (Patient patient : patients) {
             Optional<User> userOpt = userRepository.findById(patient.getId());
-            userOpt.ifPresent(user -> profiles.add(new PatientProfile(patient, user.getEmail(), user.getRole().getDescription())));
+            userOpt.ifPresent(user -> profiles.add(new PatientProfile(patient, user.getEmail(), user.getRole().getDescription(), user.getIsActive())));
         }
         LOGGER.info("Total patient profiles fetched: {}", profiles.size());
         return profiles;
@@ -120,7 +121,7 @@ public class ProfileGetService {
         Iterable<Doctor> doctors = doctorRepository.findAll();
         for (Doctor doctor : doctors) {
             Optional<User> userOpt = userRepository.findById(doctor.getId());
-            userOpt.ifPresent(user -> profiles.add(new DoctorProfile(doctor, user.getEmail(), user.getRole().getDescription())));
+            userOpt.ifPresent(user -> profiles.add(new DoctorProfile(doctor, user.getEmail(), user.getRole().getDescription(), user.getIsActive())));
         }
         LOGGER.info("Total doctor profiles fetched: {}", profiles.size());
         return profiles;

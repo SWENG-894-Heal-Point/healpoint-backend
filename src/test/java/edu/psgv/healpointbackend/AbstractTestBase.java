@@ -40,7 +40,7 @@ public abstract class AbstractTestBase {
 
     protected PatientProfile mockPatientProfile(String firstName, String email) {
         Patient patient = mockPatient(null, firstName, "Example");
-        return new PatientProfile(patient, email, "patient");
+        return new PatientProfile(patient, email, "patient", true);
     }
 
     protected Doctor mockDoctor(Integer id, String firstName, String lastName) {
@@ -49,7 +49,7 @@ public abstract class AbstractTestBase {
 
     protected DoctorProfile mockDoctorProfile(String firstName, String email) {
         Doctor doctor = mockDoctor(null, firstName, "Example");
-        return new DoctorProfile(doctor, email, "doctor");
+        return new DoctorProfile(doctor, email, "doctor", true);
     }
 
     protected NewPasswordDto mockPasswordDto(String token, String oldPassword, String newPassword, String confirmPassword) {

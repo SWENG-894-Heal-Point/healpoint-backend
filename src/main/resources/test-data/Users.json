@@ -2,7 +2,7 @@
   {
     "UserID": 1,
     "Email": "admin@healpoint.com",
-    "Password": "$2a$10$jEXfu5T/yEeCRYXcUVPio.sVgmI2xCiTRiCSsph2wpnCiLc2GeXcW",
+    "Password": "$2a$10$pqkmObGzEm5UVZqaoWo44ejYDluzfGqPEo/dNCrS18Aqn0s5CD9LC",
     "RoleID": 1,
     "IsActive": true,
     "CreatedAt": "2025-09-22 19:34:57.563",
