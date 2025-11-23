@@ -2,6 +2,7 @@ package edu.psgv.healpointbackend;
 
 import edu.psgv.healpointbackend.dto.NewPasswordDto;
 import edu.psgv.healpointbackend.dto.RefillMedicationsDto;
+import edu.psgv.healpointbackend.dto.UserDto;
 import edu.psgv.healpointbackend.model.*;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -40,7 +41,7 @@ public abstract class AbstractTestBase {
 
     protected PatientProfile mockPatientProfile(String firstName, String email) {
         Patient patient = mockPatient(null, firstName, "Example");
-        return new PatientProfile(patient, email, "patient");
+        return new PatientProfile(patient, email, "patient", true);
     }
 
     protected Doctor mockDoctor(Integer id, String firstName, String lastName) {
@@ -49,7 +50,7 @@ public abstract class AbstractTestBase {
 
     protected DoctorProfile mockDoctorProfile(String firstName, String email) {
         Doctor doctor = mockDoctor(null, firstName, "Example");
-        return new DoctorProfile(doctor, email, "doctor");
+        return new DoctorProfile(doctor, email, "doctor", true);
     }
 
     protected NewPasswordDto mockPasswordDto(String token, String oldPassword, String newPassword, String confirmPassword) {
@@ -76,5 +77,11 @@ public abstract class AbstractTestBase {
         Appointment appointment = new Appointment(doctor, patient, appointmentDate, start, end, "Test Reason");
         appointment.setStatus(status);
         return appointment;
+    }
+
+    protected UserDto mockUserDto(Integer id, String role, String firstName) {
+        String lastName = "Mock";
+        String email = String.format("%s.%s@test.com", firstName.toLowerCase(), lastName.toLowerCase());
+        return new UserDto(id, email, role, true, firstName, lastName, null, "unknown");
     }
 }

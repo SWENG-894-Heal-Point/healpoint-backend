@@ -15,6 +15,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NewPasswordDto extends TokenDto {
+    Integer targetUserId;
+
     @NotBlank
     String oldPassword;
 

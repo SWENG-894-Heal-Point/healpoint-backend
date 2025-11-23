@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
 
@@ -43,6 +45,17 @@ public class ScheduleManager {
     }
 
     /**
+     * Retrieves the work days for a given doctor by their ID.
+     *
+     * @param doctorId the ID of the doctor
+     * @return a list of WorkDay objects associated with the doctor
+     */
+    public List<WorkDay> getWorkDaysByDoctorId(Integer doctorId) {
+        LOGGER.info("Fetching work days for doctorId: {}", doctorId);
+        return workDayRepository.findByDoctorId(doctorId);
+    }
+
+    /**
      * Upserts the work days for a given doctor.
      * <p>
      * Validates the provided work days and either updates existing entries or creates new ones.
@@ -62,11 +75,10 @@ public class ScheduleManager {
         }
 
         List<WorkDay> validWorkDays = getValidWorkDays(doctor, workDays);
-        LOGGER.info("Validated work days count for doctor {}: {}", doctorId, validWorkDays.size());
-        if (validWorkDays.isEmpty()) {
-            LOGGER.warn("No valid work days provided for doctor ID {}.", doctorId);
-            throw new IllegalArgumentException("No valid work days provided.");
-        }
+
+        List<WorkDay> existingDays = workDayRepository.findByDoctorId(doctorId);
+        Set<String> incoming = validWorkDays.stream().map(WorkDay::getDayName).collect(Collectors.toSet());
+        existingDays.stream().filter(ed -> !incoming.contains(ed.getDayName())).forEach(workDayRepository::delete);
 
         for (WorkDay wd : validWorkDays) {
             LOGGER.debug("Processing work day: {}", wd.getDayName());
@@ -90,7 +102,7 @@ public class ScheduleManager {
     /**
      * Validates and filters the provided work days.
      *
-     * @param doctor the doctor associated with the work days
+     * @param doctor   the doctor associated with the work days
      * @param workDays the list of work days to validate
      * @return a list of valid work days
      * @throws JsonProcessingException if there is an error processing JSON data
