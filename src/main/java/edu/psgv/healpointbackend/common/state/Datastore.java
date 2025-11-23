@@ -56,8 +56,6 @@ public class Datastore {
                 return;
             }
         }
-
-        throw new IllegalArgumentException("User not found in online users list.");
     }
 
     /**

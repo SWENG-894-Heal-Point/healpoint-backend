@@ -49,21 +49,49 @@ public class ProfileUpdateService {
     /**
      * Updates the password for the authenticated user.
      *
-     * @param dto the data transfer object containing the token, old password,
-     *            new password, and confirmation of the new password
-     * @throws SecurityException        if the user is not authenticated or the old password is incorrect
+     * @param dto the data transfer object containing the old password, new password, confirmation of the new password, and user token
+     * @throws SecurityException        if the user is not authenticated or if the old password is incorrect
      * @throws IllegalArgumentException if the new password and its confirmation do not match
      */
     public void updatePassword(NewPasswordDto dto) {
-        LOGGER.info("Password update attempt.");
         User user = datastore.getUserByToken(dto.getToken());
         if (user == null) {
             LOGGER.warn("Password update failed: user not authenticated or authorized.");
             throw new SecurityException("Access denied: User not authenticated or authorized.");
         }
 
+        updatePassword(user, dto, false);
+    }
+
+    /**
+     * Updates the password for a target user by an administrator.
+     *
+     * @param dto the data transfer object containing the target user ID, new password, and confirmation of the new password
+     * @throws IllegalArgumentException if the target user is not found or if the new password and its confirmation do not match
+     */
+    public void adminUpdatePassword(NewPasswordDto dto) {
+        int targetUserId = dto.getTargetUserId();
+        User user = userRepository.findById(targetUserId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Password update failed: user not found for ID {}", targetUserId);
+                    return new IllegalArgumentException("User not found for ID " + targetUserId);
+                });
+
+        updatePassword(user, dto, true);
+    }
+
+    /**
+     * Internal method to handle password update logic.
+     *
+     * @param user         the User entity whose password is to be updated
+     * @param dto          the data transfer object containing password details
+     * @param isAdminReset flag indicating if the update is performed by an admin
+     * @throws SecurityException        if the old password is incorrect (for non-admin resets)
+     * @throws IllegalArgumentException if the new password and its confirmation do not match
+     */
+    private void updatePassword(User user, NewPasswordDto dto, Boolean isAdminReset) {
         boolean verifyOldPassword = PasswordUtils.verifyPassword(dto.getOldPassword(), user.getPassword());
-        if (!verifyOldPassword) {
+        if (!verifyOldPassword && !isAdminReset) {
             LOGGER.warn("Password update failed: incorrect old password for user {}", user.getEmail());
             throw new SecurityException("Incorrect old password. Please try again.");
         }

@@ -21,9 +21,10 @@ public class DoctorProfile extends Doctor {
      * @param email  the email of the doctor
      * @param role   the role of the doctor
      */
-    public DoctorProfile(Doctor doctor, String email, String role) {
+    public DoctorProfile(Doctor doctor, String email, String role, Boolean isActive) {
         this.email = email;
         this.role = role;
+        this.isActive = isActive;
         this.setId(doctor.getId());
         this.setFirstName(doctor.getFirstName());
         this.setLastName(doctor.getLastName());
@@ -39,4 +40,5 @@ public class DoctorProfile extends Doctor {
 
     private String email;
     private String role;
+    private Boolean isActive;
 }
