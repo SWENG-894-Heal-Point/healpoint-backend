@@ -28,5 +28,20 @@
     "Languages": "English, German",
     "CreatedAt": "2025-09-22 20:20:57.760",
     "UpdatedAt": null
+  },
+  {
+    "DoctorID": 9,
+    "FirstName": "James",
+    "LastName": "Roy",
+    "DateOfBirth": "1968-03-16",
+    "Gender": "Male",
+    "Phone": "21580014829",
+    "MedicalDegree": "DO",
+    "Specialty": "Primary Care",
+    "NIPNumber": "654321659",
+    "Experience": 26,
+    "Languages": "English, Spanish",
+    "CreatedAt": "2025-09-22 20:20:57.760",
+    "UpdatedAt": null
   }
 ]

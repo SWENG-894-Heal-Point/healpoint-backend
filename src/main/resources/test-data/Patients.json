@@ -62,5 +62,21 @@
     "InsuranceProvider": "MediPoint",
     "CreatedAt": "2025-09-22 20:55:59.857",
     "UpdatedAt": null
+  },
+  {
+    "PatientID": 10,
+    "FirstName": "George",
+    "LastName": "Stone",
+    "DateOfBirth": "1971-12-19",
+    "Gender": "Male",
+    "Phone": "2675461234",
+    "StreetAddress": "39 Example St",
+    "City": "New Town",
+    "State": "PA",
+    "ZipCode": "16559",
+    "InsuranceID": "IBO6669856",
+    "InsuranceProvider": "Keystone",
+    "CreatedAt": "2025-09-22 20:55:59.857",
+    "UpdatedAt": null
   }
 ]

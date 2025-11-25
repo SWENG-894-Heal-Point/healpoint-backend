@@ -70,5 +70,23 @@
     "IsActive": true,
     "CreatedAt": "2025-09-22 20:55:59.710",
     "UpdatedAt": null
+  },
+  {
+    "UserID": 9,
+    "Email": "james.roy@healpoint.com",
+    "Password": "$2a$10$tWwBYzmbN3nR4tJUYK.j8uMXuedxRUk5lNFWuipF3ZRkj2R/wHXvi",
+    "RoleID": 2,
+    "IsActive": true,
+    "CreatedAt": "2025-09-22 20:55:59.710",
+    "UpdatedAt": null
+  },
+  {
+    "UserID": 10,
+    "Email": "stoneg10@email.com",
+    "Password": "$2a$10$ITRkYqYbnJna3yfIRHh/LuRT8H9LcmfxHbNzB7H8fNu8ah6/sb06q",
+    "RoleID": 4,
+    "IsActive": true,
+    "CreatedAt": "2025-09-22 20:55:59.710",
+    "UpdatedAt": null
   }
 ]
