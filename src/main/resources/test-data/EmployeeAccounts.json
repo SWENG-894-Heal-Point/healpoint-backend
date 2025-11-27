@@ -18,6 +18,18 @@
     "UpdatedAt": "2025-09-23 00:20:56.717"
   },
   {
+    "Email": "support.staff@healpoint.com",
+    "UserID": 8,
+    "CreatedAt": "2025-09-22 19:39:04.607",
+    "UpdatedAt": "2025-09-22 20:20:57.760"
+  },
+  {
+    "Email": "james.roy@healpoint.com",
+    "UserID": 9,
+    "CreatedAt": "2025-09-22 19:39:04.607",
+    "UpdatedAt": "2025-09-22 20:20:57.760"
+  },
+  {
     "Email": "authorized.doctoc1@healpoint.com",
     "UserID": null,
     "CreatedAt": "2025-09-22 23:39:04.607",
@@ -34,11 +46,5 @@
     "UserID": null,
     "CreatedAt": "2025-09-22 23:39:04.607",
     "UpdatedAt": "2025-09-23 00:20:56.717"
-  },
-  {
-    "Email": "james.roy@healpoint.com",
-    "UserID": 9,
-    "CreatedAt": "2025-09-22 19:39:04.607",
-    "UpdatedAt": "2025-09-22 20:20:57.760"
   }
 ]

@@ -18,11 +18,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @SpringBootApplication
 public class HealpointBackendApplication {
-
+    public static String additionalAllowedOrigin = "";
     public static final Logger LOGGER = LogManager.getLogger();
     public static final ConfigReader CONFIG_READER = new ConfigReader("src/main/resources/config.properties");
 
     public static void main(String[] args) {
+        for (String arg : args) {
+            if (arg.startsWith("--origin=")) {
+                additionalAllowedOrigin = arg.substring("--origin=".length());
+                LOGGER.info("Additional allowed origin set to: " + additionalAllowedOrigin);
+            }
+        }
+        
         SpringApplication.run(HealpointBackendApplication.class, args);
     }
 
@@ -35,7 +42,7 @@ public class HealpointBackendApplication {
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/api/**")
-                    .allowedOrigins(CONFIG_READER.get("originUrlDev"), CONFIG_READER.get("originUrlQa"), CONFIG_READER.get("originUrlProd"))
+                    .allowedOrigins(CONFIG_READER.get("originUrlDev"), CONFIG_READER.get("originUrlQa"), CONFIG_READER.get("originUrlProd"), additionalAllowedOrigin)
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                     .allowedHeaders("*");
         }
