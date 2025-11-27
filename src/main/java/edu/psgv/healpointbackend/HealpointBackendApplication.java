@@ -20,7 +20,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class HealpointBackendApplication {
     public static String additionalAllowedOrigin = "";
     public static final Logger LOGGER = LogManager.getLogger();
-    public static final ConfigReader CONFIG_READER = new ConfigReader("src/main/resources/config.properties");
+    public static final ConfigReader CONFIG_READER = new ConfigReader("config.properties");
 
     public static void main(String[] args) {
         for (String arg : args) {

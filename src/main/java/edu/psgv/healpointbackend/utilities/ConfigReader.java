@@ -1,7 +1,9 @@
 package edu.psgv.healpointbackend.utilities;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import static edu.psgv.healpointbackend.HealpointBackendApplication.LOGGER;
@@ -18,13 +20,21 @@ public class ConfigReader {
     /**
      * This constructor takes a file path and reads the configuration from the file.
      *
-     * @param filePath the path to the configuration file
+     * @param fileName the path to the configuration file
      */
-    public ConfigReader(String filePath) {
+    public ConfigReader(String fileName) {
         LOGGER.debug(">>ConfigReader()");
-        LOGGER.info("Reading configuration from file: {}", filePath);
+        LOGGER.info("Reading configuration from file: {}", fileName);
         this.properties = new Properties();
-        try (FileInputStream input = new FileInputStream(filePath)) {
+
+        try {
+            InputStream input = getClass().getClassLoader().getResourceAsStream(fileName);
+
+            if (input == null) {
+                LOGGER.debug("File not found in classpath. Trying filesystem: {}", fileName);
+                input = Files.newInputStream(Path.of(fileName));
+            }
+
             properties.load(input);
             LOGGER.info("Configuration read successfully");
         } catch (IOException e) {
