@@ -29,7 +29,7 @@ public class HealpointBackendApplication {
                 LOGGER.info("Additional allowed origin set to: " + additionalAllowedOrigin);
             }
         }
-        
+
         SpringApplication.run(HealpointBackendApplication.class, args);
     }
 
@@ -42,7 +42,7 @@ public class HealpointBackendApplication {
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/api/**")
-                    .allowedOrigins(CONFIG_READER.get("originUrlDev"), CONFIG_READER.get("originUrlQa"), CONFIG_READER.get("originUrlProd"), additionalAllowedOrigin)
+                    .allowedOrigins(CONFIG_READER.get("originUrlDev"), CONFIG_READER.get("originUrlQa"), CONFIG_READER.get("originUrlProd"), CONFIG_READER.get("originUrlProd2"), additionalAllowedOrigin)
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                     .allowedHeaders("*");
         }
