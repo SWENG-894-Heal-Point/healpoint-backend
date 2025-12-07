@@ -44,7 +44,7 @@ public class PasswordPolicyValidator implements ConstraintValidator<PasswordPoli
                 && password.matches(".*[A-Z].*")
                 && password.matches(".*[a-z].*")
                 && password.matches(".*\\d.*")
-                && password.matches(".*[@$!%*?&].*");
+                && password.matches(".*[!@#$%^*&?].*");
     }
 }
 
